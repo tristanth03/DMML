@@ -1,6 +1,6 @@
 import numpy as np
 import matplotlib.pyplot as plt
-
+np.random.seed(0)
 
 def normal(x: np.ndarray, sigma: np.float64, mu: np.float64) -> np.ndarray:
     # Part 1.1
@@ -26,8 +26,6 @@ def _plot_three_normals():
     plt.legend(loc='upper left')
     
     
-    
-
 def normal_mixture(x: np.ndarray, sigmas: list, mus: list, weights: list):
     # Part 2.1
     p = 0
@@ -46,9 +44,14 @@ def _compare_components_and_mixture():
     plt.legend(loc='upper left')
     plt.show()
 
-def sample_gaussian_mixture(sigmas: list, mus: list, weights: list, n_samples: int = 500):
+def sample_gaussian_mixture(sigmas: list, mus: list, weights: list, n_samples: int):
     # Part 3.1
-    pass
+    sampling = np.random.multinomial(n_samples, weights) # multinomial distribution
+    nums = []
+    for i in range(len(sigmas)):
+        nums.extend(np.random.normal(mus[i],sigmas[i],sampling[i])) # gaussian distribution
+    return nums
+              
 
 
 
@@ -56,6 +59,9 @@ def sample_gaussian_mixture(sigmas: list, mus: list, weights: list, n_samples: i
 #     # Part 3.2
 
 if __name__ == '__main__':
-    print(np.random.multinomial(20, [1/6.]*6))
+    x = sample_gaussian_mixture([0.3, 0.5, 1], [0, -1, 0.5], [0.2, 0.3, 0.5], 1000)
+    plt.hist(x,100,density=True)
+    plt.show()
+    
 
     
