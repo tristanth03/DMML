@@ -52,15 +52,25 @@ def sample_gaussian_mixture(sigmas: list, mus: list, weights: list, n_samples: i
         nums.extend(np.random.normal(mus[i],sigmas[i],sampling[i])) # gaussian distribution
     return nums
               
+def _plot_mixture_and_samples():
+    # Part 3.2
+    sigmas = [0.3, 0.5, 1]
+    mus = [0, -1, 0.5]
+    weights = [0.2, 0.3, 0.5]
+    n_s = [10,100,500,1000]
+    for i in range(len(n_s)):
+        x = np.linspace(-10,10,n_s[i])
+        sample = sample_gaussian_mixture(sigmas,mus,weights,n_s[i])
+        y = normal_mixture(x,sigmas,mus,weights)
+        plt.subplot(2,2,i+1)
+        plt.hist(sample,100,density=True,label=fr"n={n_s[i]}")
+        plt.plot(x,y)
+        plt.legend(loc="best")
 
-
-
-# def _plot_mixture_and_samples():
-#     # Part 3.2
+    plt.show()
 
 if __name__ == '__main__':
-    x = sample_gaussian_mixture([0.3, 0.5, 1], [0, -1, 0.5], [0.2, 0.3, 0.5], 1000)
-    plt.hist(x,100,density=True)
+    _plot_three_normals()
     plt.show()
     
 
