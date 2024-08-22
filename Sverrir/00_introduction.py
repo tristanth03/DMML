@@ -63,12 +63,5 @@ if __name__ == '__main__':
     pass
     # select your function to test here and do `python3 template.py`
 
-#1.1
-
-
-#1.2
-
-
-# 2.1
 
     
