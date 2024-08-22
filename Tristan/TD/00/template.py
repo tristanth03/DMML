@@ -71,4 +71,4 @@ def _plot_mixture_and_samples():
 
 if __name__ == '__main__':
     p = sample_gaussian_mixture([0.1, 1], [-1, 1], [0.9, 0.1], 3)
-    print(p)
+    print(type(p))
