@@ -72,6 +72,3 @@ def _plot_mixture_and_samples():
 if __name__ == '__main__':
     _plot_three_normals()
     plt.show()
-    
-
-    
