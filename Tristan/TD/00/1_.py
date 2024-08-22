@@ -1,2 +1,0 @@
-import matplotlib
-print('a')

@@ -50,7 +50,7 @@ def sample_gaussian_mixture(sigmas: list, mus: list, weights: list, n_samples: i
     nums = []
     for i in range(len(sigmas)):
         nums.extend(np.random.normal(mus[i],sigmas[i],sampling[i])) # gaussian distribution
-    return nums
+    return np.array(nums)
               
 def _plot_mixture_and_samples():
     # Part 3.2
@@ -70,5 +70,5 @@ def _plot_mixture_and_samples():
     plt.show()
 
 if __name__ == '__main__':
-    _plot_three_normals()
-    plt.show()
+    p = sample_gaussian_mixture([0.1, 1], [-1, 1], [0.9, 0.1], 3)
+    print(p)
