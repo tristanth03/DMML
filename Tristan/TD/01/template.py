@@ -45,7 +45,7 @@ def _plot_sequence_estimate():
     plt.plot([e[1] for e in estimates], label='First dimension')   
     plt.legend(loc='upper center')
     plt.xlabel("Step n")
-    plt.ylabel()
+    plt.ylabel(r"$\mu_{ML}$")
     plt.show()
 
 
