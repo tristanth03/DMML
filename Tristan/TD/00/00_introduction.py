@@ -70,8 +70,12 @@ def _plot_mixture_and_samples():
     plt.show()
 
 if __name__ == '__main__':
-    _plot_three_normals()
-    plt.show()
-    
+     _plot_three_normals()
+    # plt.show()
+
+
+
+
+
 
     

@@ -48,19 +48,37 @@ def _compare_components_and_mixture():
     plt.plot(np.linspace(-5,5,500), arr, label = f'mix')
     plt.legend(loc = 'upper left')
     plt.show()
-_compare_components_and_mixture()
+#_compare_components_and_mixture()
 
 
 def sample_gaussian_mixture(sigmas: list, mus: list, weights: list, n_samples: int = 500):
-    pass
     # Part 3.1
-
+    sampling = np.random.multinomial(n_samples, weights)
+    nums = []
+    for i in range(len(sigmas)):
+        nums.extend(np.random.normal(mus[i],sigmas[i],sampling[i]))
+    return nums
+    
+    
 def _plot_mixture_and_samples():
-    pass
     # Part 3.2
+    sigmas = [0.3, 0.5, 1]
+    mus = [0, -1, 0.5]
+    weights = [0.2, 0.3, 0.5]
+    n_s = [10,100,500,1000]
+    for i in range(len(n_s)):
+        x = np.linspace(-10,10,n_s[i])
+        sample = sample_gaussian_mixture(sigmas,mus,weights,n_s[i])
+        y = normal_mixture(x,sigmas,mus,weights)
+        plt.subplot(2,2,i+1)
+        plt.hist(sample,100,density=True,label=fr"n={n_s[i]}")
+        plt.plot(x,y)
+        plt.legend(loc="best")
 
+    plt.show()
 if __name__ == '__main__':
-    pass
+    _plot_mixture_and_samples()
+
     # select your function to test here and do `python3 template.py`
 
 
