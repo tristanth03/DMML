@@ -14,13 +14,15 @@ def gen_data(
     n: int,
     k: int,
     mean: np.ndarray,
-    var: np.float64
+    std: np.float64
 ) -> np.ndarray:
     '''Generate n values samples from the k-variate
     normal distribution
     '''
-    pass
-
+    # Þarf að laga input
+    cov = std**2*np.identity(k)
+    p = np.random.multivariate_normal(mean,cov,n)
+    return p
 
 def update_sequence_mean(
     mu: np.ndarray,
@@ -29,7 +31,14 @@ def update_sequence_mean(
 ) -> np.ndarray:
     '''Performs the mean sequence estimation update
     '''
-    pass
+    mu_ml = np.zeros((n+1,1))
+    mu_ml[0] = mu
+    for i in range(n):
+        mu_ml[i] = mu_ml[i-1]+1/n*(x[i]-mu_ml[i-1])
+
+    return mu_ml
+
+    
 
 
 def _plot_sequence_estimate():
@@ -77,4 +86,16 @@ if __name__ == "__main__":
     """
     Keep all your test code here or in another file.
     """
-    pass
+    np.random.seed(1234)
+    # p = gen_data(2,3,np.array([0,1,-1]),1.3)
+    # print(p)
+    X = gen_data(10_000_000,2,np.array([-1,2]),np.sqrt(4))
+    mean = np.mean(X)
+    new_x = gen_data(1, 2, np.array([0, 0]), 1)
+    new_x = gen_data(1, 2, np.array([0, 0]), 1)
+    p = update_sequence_mean(mean, new_x, X.shape[0]+1)
+    print(p)
+
+    # scatter_2d_data(X)
+    # bar_per_axis(X)
+    
