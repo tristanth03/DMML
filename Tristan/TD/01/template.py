@@ -68,11 +68,11 @@ def _square_error(y, y_hat):
 def _plot_mean_square_error():
     data = gen_data(100,2,np.array([0,0]),3) # Set this as the data
     estimates = [np.array([0, 0])]
-    means = [data[0,:]]
+    means = []
     mse = [_square_error(means,estimates)]
     for i in range(data.shape[0]):
         estimates.append(update_sequence_mean(estimates[i],data[i],i+1))
-        means.append(np.mean(data[i],1))
+        means.append(np.mean(data[i],0))
         mse.append(_square_error(means[i],estimates[i]))
     plt.plot(mse)
     plt.show()
