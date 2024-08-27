@@ -1,0 +1,4 @@
+No we expect the batch to not estimate exactly (-1,2)
+
+If we make n infinitely large or make the stdandard deviation equal to 0 then
+we expect the batch to estimate exactly (-1,2)
