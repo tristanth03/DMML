@@ -1,0 +1,8 @@
+To start with we can NOT expect the batch estimate to be exactly (-1,2).
+Because we have deviations from the data given be the standard deviation.
+
+With n approaching infinity we might expect the estimate to reach (-1,2)
+thus changing n to a VERY LARGE number will result in a near exact batch estimate of (-1,2).
+
+By simply changing the standard deviation to 0, it will always result in the exact estimate of (-1,2),
+(since the Covarance matrix becomes the 0-matrix).
