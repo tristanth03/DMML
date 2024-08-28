@@ -1,7 +1,7 @@
-# Author: 
-# Date:
-# Project: 
-# Acknowledgements: 
+# Author: Tristan Thordarson 
+# Date: 28.08.2024
+# Project: 01
+# Acknowledgements:  
 #
 
 import matplotlib.pyplot as plt
