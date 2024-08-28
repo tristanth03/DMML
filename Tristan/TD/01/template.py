@@ -19,8 +19,8 @@ def gen_data(
     '''Generate n values samples from the k-variate
     normal distribution
     '''
-    # Þarf að laga input
-    cov = std**2*np.identity(k)
+    
+    cov = np.power(std,2)*np.identity(k)
     p = np.random.multivariate_normal(mean,cov,n)
 
     return p
@@ -32,9 +32,6 @@ def update_sequence_mean(
 ) -> np.ndarray:
     '''Performs the mean sequence estimation update
     '''
-    # mu_2 = np.mean(x,0)
-    # n_2 = x.shape[0]
-    # new_mu = (mu*(n-n_2)+mu_2*n_2)/n
     mu_ml = mu+1/n*(x-mu)
 
     return mu_ml
@@ -54,10 +51,9 @@ def _plot_sequence_estimate():
     plt.ylabel(r"$\mu_{ML}$")
     plt.show()
 
-
 def _square_error(y, y_hat):
-    """
-    """
+    '''Calculates the MeanSquaredError from given scalars/vectors
+    '''
     se = []
     for i in range(len(y)):
         se.append(np.power(y[i]-y_hat[i],2))
@@ -66,18 +62,22 @@ def _square_error(y, y_hat):
 
 
 def _plot_mean_square_error():
+    '''Plotting the evolution of the Loss(MSE) on given data
+    '''
     data = gen_data(100,2,np.array([0,0]),3) # Set this as the data
-    estimates = [np.array([0, 0])]
-    means = []
-    mse = [_square_error(means,estimates)]
-    for i in range(data.shape[0]):
+    estimates = [np.array([0,0])]
+    actual = []
+    mse = []
+    for i in range(len(data)):
         estimates.append(update_sequence_mean(estimates[i],data[i],i+1))
-        means.append(np.mean(data[i],0))
-        mse.append(_square_error(means[i],estimates[i]))
-    plt.plot(mse)
-    plt.show()
+        actual.append(np.mean(data[0:i+1],0))
+        mse.append(_square_error(actual[i],estimates[i]))
 
-    
+    plt.plot(mse)
+    plt.ylabel(r"$\mathcal{L}_{MSE}$")
+    plt.xlabel(r"n")
+    plt.title("Loss(MSE) evolution")
+    plt.show()
 
 
 # Naive solution to the independent question.
@@ -87,10 +87,15 @@ def gen_changing_data(
     k: int,
     start_mean: np.ndarray,
     end_mean: np.ndarray,
-    var: np.float64
+    std: np.float64
 ) -> np.ndarray:
-    # remove this if you don't go for the independent section
-    pass
+    '''
+    '''
+    cov = np.power(std,2)*np.identity(k)
+    p = np.random.multivariate_normal(mean,cov,n)
+
+    return p
+
 
 
 def _plot_changing_sequence_estimate():
