@@ -116,7 +116,7 @@ if __name__ == "__main__":
     # p = update_sequence_mean(mean, new_x, X.shape[0]+1)
     # print(p)
 
-    _plot_mean_square_error()
+    
 
     # scatter_2d_data(X)
     # bar_per_axis(X)

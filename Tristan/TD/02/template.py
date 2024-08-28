@@ -21,7 +21,9 @@ def gen_data(
     Return n data points, their classes and a unique list of all classes, from each normal distributions
     shifted and scaled by the values in locs and scales
     '''
-    ...
+
+    norm()
+    pass
 
 
 def mean_of_class(
