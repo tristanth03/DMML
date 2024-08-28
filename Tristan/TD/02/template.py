@@ -3,14 +3,11 @@
 # Project: 
 # Acknowledgements: 
 #
-
-
 from tools import load_iris, split_train_test
 
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
-
 
 def gen_data(
     n: int,
@@ -22,8 +19,16 @@ def gen_data(
     shifted and scaled by the values in locs and scales
     '''
 
-    norm()
-    pass
+    data = norm.rvs(locs,scales,size=(n,len(locs)))
+    classes = []
+    labels = []
+    for i in range(len(locs)):
+        classes.append(i)
+        for j in range(len(data)):
+            labels.append(i)
+
+
+    return np.array(data),labels,classes
 
 
 def mean_of_class(
@@ -103,4 +108,4 @@ if __name__ == "__main__":
     """
     Keep all your test code here or in another file.
     """
-    pass
+    print(gen_data(2, [0, 2], [4, 4]))
