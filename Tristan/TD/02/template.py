@@ -18,17 +18,16 @@ def gen_data(
     Return n data points, their classes and a unique list of all classes, from each normal distributions
     shifted and scaled by the values in locs and scales
     '''
-
     data = norm.rvs(locs,scales,size=(n,len(locs)))
-    classes = []
     labels = []
+    classes = []
     for i in range(len(locs)):
         classes.append(i)
         for j in range(len(data)):
             labels.append(i)
 
 
-    return np.array(data),labels,classes
+    return np.array(data),np.array(labels),np.array(classes)
 
 
 def mean_of_class(
@@ -40,7 +39,13 @@ def mean_of_class(
     Estimate the mean of a selected class given all features
     and targets in a dataset
     '''
-    ...
+    
+    selected_nums = len(targets)
+    mu = np.mean(features[selected_nums,selected_class],0)
+    return mu
+
+
+
 
 
 def covar_of_class(
@@ -108,4 +113,28 @@ if __name__ == "__main__":
     """
     Keep all your test code here or in another file.
     """
-    print(gen_data(2, [0, 2], [4, 4]))
+
+
+    
+
+    features,targets,classes = gen_data(50, [-1, 1], [np.sqrt(5), np.sqrt(5)])
+    (train_features, train_targets), (test_features, test_targets)\
+        = split_train_test(features, targets, train_ratio=0.8)
+    print(mean_of_class(train_features,test_features,0))
+    # for _class in range(features.shape[1]):
+
+    #     # Some general shapes for markers, one for even nums and one for odd
+    #     if _class % 2 == 0:
+    #         marker = 'o'
+    #     else:
+    #         marker = 'x'
+        
+    #     plt.scatter(features[:,_class],np.array([0]*features.shape[0]),marker=marker,label=fr"Class {_class}")
+    # plt.legend()
+    # plt.show()
+
+
+
+
+
+    

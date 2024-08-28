@@ -115,6 +115,7 @@ if __name__ == "__main__":
     # new_x = gen_data(1, 2, np.array([0, 0]), 1)
     # p = update_sequence_mean(mean, new_x, X.shape[0]+1)
     # print(p)
+    _plot_mean_square_error()
 
     
 
