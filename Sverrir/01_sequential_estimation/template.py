@@ -30,10 +30,8 @@ def update_sequence_mean(
 ) -> np.ndarray:
     '''Performs the mean sequence estimation update
     '''
-    mu_2 = np.mean(x,0)
-    n_2 = x.shape[0]
-    new_mu = (mu*(n-n_2)+mu_2*n_2)/n
-    return new_mu
+
+    return mu + (1/(n-1))*(mu-x)
 
 def _plot_sequence_estimate():
     data = None # Set this as the data
