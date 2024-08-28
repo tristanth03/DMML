@@ -66,7 +66,7 @@ def _plot_mean_square_error():
     '''
     data = gen_data(100,2,np.array([0,0]),3) # Set this as the data
     estimates = [np.array([0,0])]
-    actual = []
+    actual = [] 
     mse = []
     for i in range(len(data)):
         estimates.append(update_sequence_mean(estimates[i],data[i],i+1))
