@@ -30,7 +30,6 @@ def update_sequence_mean(
 ) -> np.ndarray:
     '''Performs the mean sequence estimation update
     '''
-
     return mu + (1/(n))*(x-mu)
 
 def _plot_sequence_estimate():
@@ -48,22 +47,24 @@ def _plot_sequence_estimate():
 
 
 def _square_error(y, y_hat):
-    sq = np.power((y-y_hat),2)
-    sq_mean = np.mean(sq, axis=1)
-
-    return(sq_mean)
-
+    se = [] 
+    for i in range(len(y)):
+        se.append(np.power(y[i]-y_hat[i],2)) 
+    mse = np.mean(se, axis=0)
+    return mse
 
 
 def _plot_mean_square_error():
     data = gen_data(100, 2, np.array([0, 0]), 3)
-    estimates = [np.array([0, 0])]
+    estimate_mean = [np.array([0, 0])]
+    actual_mean = []
+    mses = []
     for i in range(data.shape[0]):
-        estimates.append(update_sequence_mean(estimates[i], data[i], i+1))
-    estimates = np.array(estimates)    
-    estimates = estimates[1:,:]
-    mse = _square_error(data,estimates)
-    plt.plot([e for e in mse])
+        estimate_mean.append(update_sequence_mean(estimate_mean[i], data[i], i+1))
+        actual_mean.append(np.mean(data[:i+1],0))
+        mses.append(_square_error(actual_mean[i], estimate_mean[i]))
+
+    plt.plot([mse for mse in mses])
     plt.show()
 
     #errors = _square_error()
