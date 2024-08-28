@@ -43,18 +43,30 @@ def _plot_sequence_estimate():
 
     plt.legend(loc='upper center')
     plt.show()
+    print(len(estimates))
     
 
 
 def _square_error(y, y_hat):
     sq = np.power((y-y_hat),2)
     sq_mean = np.mean(sq, axis=1)
+
     return(sq_mean)
-    
+
 
 
 def _plot_mean_square_error():
-    errors = _square_error()
+    data = gen_data(100, 2, np.array([0, 0]), 3)
+    estimates = [np.array([0, 0])]
+    for i in range(data.shape[0]):
+        estimates.append(update_sequence_mean(estimates[i], data[i], i+1))
+    estimates = np.array(estimates)    
+    estimates = estimates[1:,:]
+    mse = _square_error(data,estimates)
+    plt.plot([e for e in mse])
+    plt.show()
+
+    #errors = _square_error()
 
 
 # Naive solution to the independent question.
@@ -90,6 +102,7 @@ if __name__ == "__main__":
     # mean = np.mean(X, 0)
     # new_x = gen_data(1, 2, np.array([0, 0]), 1)
     # print(update_sequence_mean(mean, new_x, X.shape[0]+1))
-    _plot_sequence_estimate()
+    #_plot_sequence_estimate()
+    _plot_mean_square_error()
     
 
