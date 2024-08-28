@@ -31,29 +31,30 @@ def update_sequence_mean(
     '''Performs the mean sequence estimation update
     '''
 
-    return mu + (1/(n-1))*(mu-x)
+    return mu + (1/(n))*(x-mu)
 
 def _plot_sequence_estimate():
-    data = None # Set this as the data
+    data = gen_data(100, 2, np.array([0, 0]), 3)
     estimates = [np.array([0, 0])]
     for i in range(data.shape[0]):
-        """
-            your code here
-        """
+        estimates.append(update_sequence_mean(estimates[i], data[i], i+1))
     plt.plot([e[0] for e in estimates], label='First dimension')
-    """
-        your code here
-    """
+    plt.plot([e[1] for e in estimates], label='Second dimension')
+
     plt.legend(loc='upper center')
     plt.show()
+    
 
 
 def _square_error(y, y_hat):
-    pass
+    sq = np.power((y-y_hat),2)
+    sq_mean = np.mean(sq, axis=1)
+    return(sq_mean)
+    
 
 
 def _plot_mean_square_error():
-    pass
+    errors = _square_error()
 
 
 # Naive solution to the independent question.
@@ -85,9 +86,10 @@ if __name__ == "__main__":
 
     # Section 3
     np.random.seed(1234)
-    X = gen_data(300, 2, np.array([-1,2]), np.sqrt(4))
-    mean = np.mean(X, 0)
-    new_x = gen_data(1, 2, np.array([0, 0]), 1)
-    print(update_sequence_mean(mean, new_x, X.shape[0]+1))
+    # X = gen_data(300, 2, np.array([-1,2]), np.sqrt(4))
+    # mean = np.mean(X, 0)
+    # new_x = gen_data(1, 2, np.array([0, 0]), 1)
+    # print(update_sequence_mean(mean, new_x, X.shape[0]+1))
+    _plot_sequence_estimate()
     
 
