@@ -19,13 +19,13 @@ def gen_data(
     Return n data points, their classes and a unique list of all classes, from each normal distributions
     shifted and scaled by the values in locs and scales
     '''
-    data = norm.rvs(locs,scales,size=(n,len(locs)))
+    data = []
     labels = []
     classes = []
     for i in range(len(locs)):
         classes.append(i)
-        for j in range(len(data)):
-            labels.append(i)
+        labels.extend([i]*n)
+        data.extend(norm.rvs(locs[i],scales[i],size=n)) 
 
 
     return np.array(data),np.array(labels),np.array(classes)
@@ -70,7 +70,8 @@ def likelihood_of_class(
     and covariance of the distribution.
     '''
     p = norm.pdf(feature,class_mean,class_covar) # assuming we have a 1-dimensional input (i.e. we iterate)
-    return p
+    p_multi = np.prod(p)
+    return p_multi
 
 
 def maximum_likelihood(
@@ -119,7 +120,10 @@ if __name__ == "__main__":
     Keep all your test code here or in another file.
     """
 
-    # np.random.seed(1234)
+    
+   
+
+
     
     # features,targets,classes = gen_data(50, [-1,2], [np.sqrt(5),1])
     # (train_features, train_targets), (test_features, test_targets)\
@@ -140,8 +144,52 @@ if __name__ == "__main__":
         
     #     plt.scatter(features[:,_class],np.array([0]*features.shape[0]),marker=marker,label=fr"Class {_class}")
     # plt.legend()
+    # plt.title("Test and train data, seed: 1234")
+    # plt.xlabel("Numerical value")
     # plt.show()
 
+
+    # mus = [-4,4]
+    # var_s = [np.sqrt(2),np.sqrt(2)]
+    # accuracy = []
+    # for i in range(len(mus)):
+    #     features,targets,classes = gen_data(50, [mus[i]], [var_s[i]])
+    #     (train_features, train_targets), (test_features, test_targets)\
+    #     = split_train_test(features, targets, train_ratio=0.8)
+    #     max_like = maximum_likelihood(train_features,train_targets,test_features,classes)
+    #     class_pred = predict(max_like)
+    #     correct_pred = 0
+    #     incorrect_pred = 0
+    #     for p in range(len(test_targets)):
+    #         if test_targets[p] == class_pred[p]:
+    #             correct_pred += 1
+    #         else:
+    #             incorrect_pred += 1
+    #     accuracy.append(correct_pred/len(test_targets))
+    
+    # print(accuracy)
+    
+
+
+    # Define the parameters for the two classes
+    mus = [-4, 4]
+    scales = [np.sqrt(2), np.sqrt(2)]
+
+    # Generate data from both distributions, treating each as a separate class
+    features, targets, classes = gen_data(50, mus, scales)
+
+    # Split the dataset into training and testing sets
+    (train_features, train_targets), (test_features, test_targets) = split_train_test(features, targets, train_ratio=0.8)
+
+    # Estimate likelihood and predict the class for each test feature
+    max_like = maximum_likelihood(train_features, train_targets, test_features, classes)
+    class_pred = predict(max_like)
+
+    # Calculate the accuracy by comparing predicted labels with actual labels
+    correct_pred = np.sum(test_targets == class_pred)
+    accuracy = correct_pred / len(test_targets)
+
+    print(f"Accuracy: {accuracy}")
 
 
 
