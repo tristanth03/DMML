@@ -121,6 +121,8 @@ if __name__ == "__main__":
     (train_features, train_targets), (test_features, test_targets)\
         = split_train_test(features, targets, train_ratio=0.8)
     print(mean_of_class(train_features,test_features,0))
+
+    
     # for _class in range(features.shape[1]):
 
     #     # Some general shapes for markers, one for even nums and one for odd
