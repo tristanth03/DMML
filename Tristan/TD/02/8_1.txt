@@ -1,0 +1,13 @@
+(A):
+In my case for this test I got an accuracy of 100% for both classes. 
+Reason 1: class 0 is the opposite of class 1 due the the mean and same corresponding variance, meaning its easier to identify which is which.
+Reason 2: the variance is rather small i.e. its noise impact will not be large, meaning classification becomes easier thus more accurate.
+
+(B)
+1. Increasing the number of datapoints n will lead to more accuracy and a more realistic comparison.
+2. Setting the mean to unique values per class i.e. having it vastly different will cause the classification to be easier.
+3. Lowering the standard deviation results in less noice thus easier assignagion thus more accuracy.
+
+Sidenote: comparison of the accuracy of two classes that are very different should be kind of straightforward.
+Now if we image we a have a dataset similar classes each representing a distribution, the classification becomes harder thus more interesting.
+If we dwelve even deeper into linear algebra we might also suggest that with increasing dimensions on any given data classification becomes harder and harder
