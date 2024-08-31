@@ -8,6 +8,7 @@ from tools import load_iris, split_train_test
 import matplotlib.pyplot as plt
 import numpy as np
 from scipy.stats import norm
+from scipy.stats import multivariate_normal
 
 def gen_data(
     n: int,
@@ -39,13 +40,9 @@ def mean_of_class(
     Estimate the mean of a selected class given all features
     and targets in a dataset
     '''
-    
-    selected_nums = len(targets)
-    mu = np.mean(features[selected_nums,selected_class],0)
+    selected_features = features[targets==selected_class] 
+    mu = np.mean(selected_features,0)
     return mu
-
-
-
 
 
 def covar_of_class(
@@ -56,21 +53,24 @@ def covar_of_class(
     '''
     Estimate the covariance of a selected class given all
     features and targets in a dataset
-    '''
-    ...
+    '''   
+    selected_features = features[targets==selected_class]
+    cov = np.cov(selected_features,rowvar=False)
+    return cov
 
 
 def likelihood_of_class(
     feature: np.ndarray,
     class_mean: np.ndarray,
     class_covar: np.ndarray
-) -> float:
+) -> np.ndarray:
     '''
     Estimate the likelihood that a sample is drawn
     from a multivariate normal distribution, given the mean
     and covariance of the distribution.
     '''
-    ...
+    p = norm.pdf(feature,class_mean,class_covar) # assuming we have a 1-dimensional input (i.e. we iterate)
+    return p
 
 
 def maximum_likelihood(
@@ -90,10 +90,14 @@ def maximum_likelihood(
     '''
     means, covs = [], []
     for class_label in classes:
-        ...
+        means.append(mean_of_class(train_features,train_targets,class_label))
+        covs.append(covar_of_class(train_features,train_targets,class_label))
     likelihoods = []
     for i in range(test_features.shape[0]):
-        ...
+        sample_likelihoods = []
+        for class_label in classes:
+            sample_likelihoods.append(likelihood_of_class(test_features[i],means[class_label],covs[class_label]))
+        likelihoods.append(sample_likelihoods)
     return np.array(likelihoods)
 
 
@@ -106,7 +110,8 @@ def predict(likelihoods: np.ndarray):
     You should return a [likelihoods.shape[0]] shaped numpy
     array of predictions, e.g. [0, 1, 0, ..., 1, 2]
     '''
-    ...
+    pred = np.argmax(likelihoods,1)
+    return pred
 
 
 if __name__ == "__main__":
@@ -114,14 +119,16 @@ if __name__ == "__main__":
     Keep all your test code here or in another file.
     """
 
-
+    # np.random.seed(1234)
     
-
-    features,targets,classes = gen_data(50, [-1, 1], [np.sqrt(5), np.sqrt(5)])
-    (train_features, train_targets), (test_features, test_targets)\
-        = split_train_test(features, targets, train_ratio=0.8)
-    print(mean_of_class(train_features,test_features,0))
-
+    # features,targets,classes = gen_data(50, [-1,2], [np.sqrt(5),1])
+    # (train_features, train_targets), (test_features, test_targets)\
+    #     = split_train_test(features, targets, train_ratio=0.8)
+    # class_mean = mean_of_class(train_features, train_targets, 0)
+    # class_cov = covar_of_class(train_features, train_targets, 0)
+    # l = maximum_likelihood(train_features,train_targets,test_features,classes)
+    # print(l)
+    # print(predict(l))
     
     # for _class in range(features.shape[1]):
 

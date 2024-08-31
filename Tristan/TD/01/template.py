@@ -2,7 +2,7 @@
 # Date: 28.08.2024
 # Project: 01
 # Acknowledgements:  
-#
+
 
 import matplotlib.pyplot as plt
 import numpy as np
@@ -20,7 +20,7 @@ def gen_data(
     normal distribution
     '''
     
-    cov = np.power(std,2)*np.identity(k)
+    cov = np.power(std,2)*np.identity(k) 
     p = np.random.multivariate_normal(mean,cov,n)
 
     return p
@@ -32,13 +32,12 @@ def update_sequence_mean(
 ) -> np.ndarray:
     '''Performs the mean sequence estimation update
     '''
-    mu_ml = mu+1/n*(x-mu)
+    mu_ml = mu+1/n*(x-mu) # replicate the given formula
 
     return mu_ml
 
 def _plot_sequence_estimate():
-    '''
-    
+    '''Monotoring the sequence estimation
     '''
     data = gen_data(100,2,np.array([0,0]),3) # Set this as the data
     estimates = [np.array([0, 0])]
@@ -49,6 +48,7 @@ def _plot_sequence_estimate():
     plt.legend(loc='upper center')
     plt.xlabel("N")
     plt.ylabel(r"$\mu_{ML}$")
+    plt.title("Sequence estimate, seed: 1234")
     plt.show()
 
 def _square_error(y, y_hat):
@@ -76,31 +76,31 @@ def _plot_mean_square_error():
     plt.plot(mse)
     plt.ylabel(r"$\mathcal{L}_{MSE}$")
     plt.xlabel(r"n")
-    plt.title("Loss(MSE) evolution")
+    plt.title("Loss(MSE) evolution, seed: 1234")
     plt.show()
 
 
 # Naive solution to the independent question.
 
-def gen_changing_data(
-    n: int,
-    k: int,
-    start_mean: np.ndarray,
-    end_mean: np.ndarray,
-    std: np.float64
-) -> np.ndarray:
-    '''
-    '''
-    cov = np.power(std,2)*np.identity(k)
-    p = np.random.multivariate_normal(mean,cov,n)
+# def gen_changing_data(
+#     n: int,
+#     k: int,
+#     start_mean: np.ndarray,
+#     end_mean: np.ndarray,
+#     std: np.float64
+# ) -> np.ndarray:
+#     '''
+#     '''
+#     cov = np.power(std,2)*np.identity(k)
+#     p = np.random.multivariate_normal(mean,cov,n)
 
-    return p
+#     return p
 
 
 
-def _plot_changing_sequence_estimate():
-    # remove this if you don't go for the independent section
-    pass
+# def _plot_changing_sequence_estimate():
+#     # remove this if you don't go for the independent section
+#     pass
 
 
 if __name__ == "__main__":
@@ -115,7 +115,7 @@ if __name__ == "__main__":
     # new_x = gen_data(1, 2, np.array([0, 0]), 1)
     # p = update_sequence_mean(mean, new_x, X.shape[0]+1)
     # print(p)
-    _plot_mean_square_error()
+    _plot_sequence_estimate()
 
     
 
