@@ -42,7 +42,6 @@ def _plot_sequence_estimate():
 
     plt.legend(loc='upper center')
     plt.show()
-    print(len(estimates))
     
 
 
@@ -104,6 +103,7 @@ if __name__ == "__main__":
     # new_x = gen_data(1, 2, np.array([0, 0]), 1)
     # print(update_sequence_mean(mean, new_x, X.shape[0]+1))
     #_plot_sequence_estimate()
-    _plot_mean_square_error()
+    #_plot_sequence_estimate()
+    #_plot_mean_square_error()
     
 
