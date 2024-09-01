@@ -158,9 +158,21 @@ if __name__ == "__main__":
     all_likelihoods = maximum_likelihood(train_features, train_targets, test_features, classes)
     prediction = predict(all_likelihoods)
     #
-    corr_pred = [0] * len(test_features.shape[0])
-    no_pred = [0] * len(test_features.shape[0])
+    corr_pred = [0] * len(classes) # no of correct prediction per class
+    no_pred = [0] * len(classes) # no of prediction per class
+    accuracy = [0] * len(classes)
     #
+    for i in range(len(test_targets)):
+        c = test_targets[i]
+        no_pred[c] += 1
+        if c == prediction[i]:
+            corr_pred[c] += 1
+    accuracy = np.divide(corr_pred, no_pred)
+    # print(test_targets)
+    # print(prediction)
+    # print(corr_pred)
+    # print(no_pred)
+    print(accuracy)
  
 
     
