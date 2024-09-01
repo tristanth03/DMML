@@ -1,6 +1,6 @@
-# Author: 
-# Date:
-# Project: 
+# Author: Tristan Thordarson
+# Date: 31.08.2024
+# Project: 02
 # Acknowledgements: 
 #
 from tools import load_iris, split_train_test
@@ -120,18 +120,18 @@ if __name__ == "__main__":
     Keep all your test code here or in another file.
     """
 
-    
+    np.random.seed(1234)
    
 
 
     
-    # features,targets,classes = gen_data(50, [-1,2], [np.sqrt(5),1])
-    # (train_features, train_targets), (test_features, test_targets)\
-    #     = split_train_test(features, targets, train_ratio=0.8)
-    # class_mean = mean_of_class(train_features, train_targets, 0)
-    # class_cov = covar_of_class(train_features, train_targets, 0)
-    # l = maximum_likelihood(train_features,train_targets,test_features,classes)
-    # print(l)
+    features,targets,classes = gen_data(50, [-1,1], [np.sqrt(5),np.sqrt(5)])
+    (train_features, train_targets), (test_features, test_targets)\
+        = split_train_test(features, targets, train_ratio=0.8)
+    class_mean = mean_of_class(train_features, train_targets, 0)
+    class_cov = covar_of_class(train_features, train_targets, 0)
+    l = maximum_likelihood(train_features,train_targets,test_features,classes)
+    print(l)
     # print(predict(l))
     
     # for _class in range(features.shape[1]):
@@ -149,47 +149,53 @@ if __name__ == "__main__":
     # plt.show()
 
 
-    # mus = [-4,4]
-    # var_s = [np.sqrt(2),np.sqrt(2)]
-    # accuracy = []
-    # for i in range(len(mus)):
-    #     features,targets,classes = gen_data(50, [mus[i]], [var_s[i]])
-    #     (train_features, train_targets), (test_features, test_targets)\
-    #     = split_train_test(features, targets, train_ratio=0.8)
-    #     max_like = maximum_likelihood(train_features,train_targets,test_features,classes)
-    #     class_pred = predict(max_like)
-    #     correct_pred = 0
-    #     incorrect_pred = 0
-    #     for p in range(len(test_targets)):
-    #         if test_targets[p] == class_pred[p]:
-    #             correct_pred += 1
-    #         else:
-    #             incorrect_pred += 1
-    #     accuracy.append(correct_pred/len(test_targets))
+    mus = [-4,4]
+    var_s = [np.sqrt(2),np.sqrt(2)]
+    features,targets,classes = gen_data(50, mus, var_s)
+    (train_features, train_targets), (test_features, test_targets)\
+        = split_train_test(features, targets, train_ratio=0.8)
+    maxi_liki = maximum_likelihood(train_features,train_targets,test_features,classes)
+    class_hat = predict(maxi_liki)
+    
+    class_count = [0]*(classes[-1]+1)
+    correct_preds = [0]*(classes[-1]+1)
+    accuracy = [0]*(classes[-1]+1)
+    for i in range(len(test_targets)):
+        _class = test_targets[i]
+        class_count[_class] += 1
+        if _class == class_hat[i]:
+            correct_preds[_class] += 1
+        accuracy[_class] = correct_preds[_class] / class_count[_class]
     
     # print(accuracy)
+        
+
+
+
+
+
+
+    # x = test_targets!=class_hat
+        
+    # print(x)
+
+
+        #     if class_hat[i] == train_targets[i]:
+        #         print("ok")
+        #         correct_pred += 1
+        # accuracy.append(correct_pred/len(train_targets))
+
+   
+
+    
+                
+
+
+
     
 
 
-    # Define the parameters for the two classes
-    mus = [-4, 4]
-    scales = [np.sqrt(2), np.sqrt(2)]
-
-    # Generate data from both distributions, treating each as a separate class
-    features, targets, classes = gen_data(50, mus, scales)
-
-    # Split the dataset into training and testing sets
-    (train_features, train_targets), (test_features, test_targets) = split_train_test(features, targets, train_ratio=0.8)
-
-    # Estimate likelihood and predict the class for each test feature
-    max_like = maximum_likelihood(train_features, train_targets, test_features, classes)
-    class_pred = predict(max_like)
-
-    # Calculate the accuracy by comparing predicted labels with actual labels
-    correct_pred = np.sum(test_targets == class_pred)
-    accuracy = correct_pred / len(test_targets)
-
-    print(f"Accuracy: {accuracy}")
+    
 
 
 
