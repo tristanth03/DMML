@@ -38,16 +38,13 @@ def plot_data(
     ) -> np.ndarray:
     '''plots the data'''
     markers = ['o', 'x'] 
-    y_values = [0]*len(features)
+    
     for class_id in classes:
         class_features = features[targets == class_id]
-        class_y_values = y_values[targets == class_id]
-        
+        class_y_values = [0] * len(class_features)    
         plt.scatter(class_features, class_y_values, marker=markers[class_id], label=f'Class {class_id}')
     plt.show()
     
-
-
 
 def mean_of_class(
     features: np.ndarray,
@@ -138,20 +135,20 @@ if __name__ == "__main__":
     """
     Keep all your test code here or in another file.
     """
-    #np.random.seed(1234)
-    #features, targets, classes = gen_data(50, [-1, 1], [np.sqrt(5), np.sqrt(5)])
-    #(train_features, train_targets), (test_features, test_targets)\
-    #= split_train_test(features, targets, train_ratio=0.8)
+    np.random.seed(1234)
+    # features, targets, classes = gen_data(50, [-1, 1], [np.sqrt(5), np.sqrt(5)])
+    # (train_features, train_targets), (test_features, test_targets)\
+    # = split_train_test(features, targets, train_ratio=0.8)
     #print(train_features, train_targets)
-    #plot_data(features, targets, classes)
-    #class_mean = mean_of_class(train_features, train_targets, 0)
-    #class_cov = covar_of_class(train_features, train_targets, 0)
-    #print(likelihood_of_class(test_features[0:3], class_mean, class_cov))
-    #print(maximum_likelihood(train_features, train_targets, test_features, classes))
+    # plot_data(features, targets, classes)
+    # class_mean = mean_of_class(train_features, train_targets, 0)
+    # class_cov = covar_of_class(train_features, train_targets, 0)
+    # print(likelihood_of_class(test_features[0:3], class_mean, class_cov))
+    # print(maximum_likelihood(train_features, train_targets, test_features, classes))
     #print(predict(maximum_likelihood(train_features, train_targets, test_features, classes)))
 
    # Section 8
-    features, targets, classes = gen_data(50, [-4, 4], [np.sqrt(2), np.sqrt(2)])
+    features, targets, classes = gen_data(50000, [-2, 2], [np.sqrt(2), np.sqrt(2)])
     (train_features, train_targets), (test_features, test_targets)\
     = split_train_test(features, targets, train_ratio=0.8)
     #

@@ -1,0 +1,22 @@
+
+a.
+The accuracy of both data sets is 100%. The reason for that is that the means are 
+so far apart and the standard deviation low, so there are very slim chances that a data point of the distribution
+N(-4, sqrt(2)) will be mistaken to be N(4,sqrt(2)).
+
+b.
+i - When you Increase the no of data points then the accuracy will still by very, very high 
+but the accuracy will approximate to the distribution.
+
+ii - When the means get closer then the accuracy will decrease but 
+When the means get further away then the accuracy will increase.
+
+iii -  When the standard deviations get larger then the accuracy will decrease but 
+When the standard deviations get smaller then the accuracy will increase.
+
+
+
+
+
+
+
