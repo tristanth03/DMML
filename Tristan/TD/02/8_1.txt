@@ -3,7 +3,7 @@ In my case for this test I got an accuracy of 100% for both classes.
 Reason 1: Class 0 is the opposite of class 1 due the the mean and same corresponding variance, meaning its easier to identify which is which.
 Reason 2: The variance is rather small i.e. its noise impact will not be large, meaning classification becomes easier thus more accurate.
 Reason 3: If we think about the distributions are also very far apart further indicating the unlikely event of a datapoint being between both distributions.
-Reason 4: Since the noice is relatively small and we have such a small number of datapoints we can state that the probability of the classes to overlap are not significant.
+Reason 4: Since the noice is relatively small and we have such a small number of datapoints we can state that the probability of the classes overlapping are not significant.
 
 (B)
 1. Increasing the number of datapoints n will lead to a more realistic comparison and the classs approaches to its corresponding distribution, the accuracy stays relatively high (on same distributions as provided in the test case).
