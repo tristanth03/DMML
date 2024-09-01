@@ -134,9 +134,9 @@ def plot_data():
 
 
 def case_study():
-    mus = [-2,2]
+    mus = [-20,20]
     var_s = [np.sqrt(2),np.sqrt(2)]
-    features,targets,classes = gen_data(5000, mus, var_s)
+    features,targets,classes = gen_data(59000, mus, var_s)
     (train_features, train_targets), (test_features, test_targets)\
         = split_train_test(features, targets, train_ratio=0.8)
     maxi_liki = maximum_likelihood(train_features,train_targets,test_features,classes)
