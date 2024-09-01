@@ -115,40 +115,27 @@ def predict(likelihoods: np.ndarray):
     return pred
 
 
-if __name__ == "__main__":
-    """
-    Keep all your test code here or in another file.
-    """
-
-    np.random.seed(1234)
-   
-
-
-    
+def plot_data():
     features,targets,classes = gen_data(50, [-1,1], [np.sqrt(5),np.sqrt(5)])
     (train_features, train_targets), (test_features, test_targets)\
         = split_train_test(features, targets, train_ratio=0.8)
-    class_mean = mean_of_class(train_features, train_targets, 0)
-    class_cov = covar_of_class(train_features, train_targets, 0)
-    l = maximum_likelihood(train_features,train_targets,test_features,classes)
-    print(l)
-    # print(predict(l))
-    
-    # for _class in range(features.shape[1]):
 
-    #     # Some general shapes for markers, one for even nums and one for odd
-    #     if _class % 2 == 0:
-    #         marker = 'o'
-    #     else:
-    #         marker = 'x'
+    for _class in range(features.shape[1]):
+
+        # Some general shapes for markers, one for even nums and one for odd
+        if _class % 2 == 0:
+            marker = 'o'
+        else:
+            marker = 'x'
         
-    #     plt.scatter(features[:,_class],np.array([0]*features.shape[0]),marker=marker,label=fr"Class {_class}")
-    # plt.legend()
-    # plt.title("Test and train data, seed: 1234")
-    # plt.xlabel("Numerical value")
-    # plt.show()
+        plt.scatter(features[:,_class],np.array([0]*features.shape[0]),marker=marker,label=fr"Class {_class}")
+    plt.legend()
+    plt.title("Test and train data, seed: 1234")
+    plt.xlabel("Numerical value")
+    plt.show()
 
 
+def case_study():
     mus = [-4,4]
     var_s = [np.sqrt(2),np.sqrt(2)]
     features,targets,classes = gen_data(50, mus, var_s)
@@ -167,37 +154,25 @@ if __name__ == "__main__":
             correct_preds[_class] += 1
         accuracy[_class] = correct_preds[_class] / class_count[_class]
     
-    # print(accuracy)
-        
+    print(accuracy)
 
+if __name__ == "__main__":
+    """
+    Keep all your test code here or in another file.
+    """
 
-
-
-
-
-    # x = test_targets!=class_hat
-        
-    # print(x)
-
-
-        #     if class_hat[i] == train_targets[i]:
-        #         print("ok")
-        #         correct_pred += 1
-        # accuracy.append(correct_pred/len(train_targets))
-
+    np.random.seed(1234)
    
 
-    
-                
-
-
 
     
+    # features,targets,classes = gen_data(50, [-1,1], [np.sqrt(5),np.sqrt(5)])
+    # (train_features, train_targets), (test_features, test_targets)\
+    #     = split_train_test(features, targets, train_ratio=0.8)
+    # class_mean = mean_of_class(train_features, train_targets, 0)
+    # class_cov = covar_of_class(train_features, train_targets, 0)
+    # l = maximum_likelihood(train_features,train_targets,test_features,classes)
+    # print(l)
+    # print(predict(l))
 
-
-    
-
-
-
-
-    
+    plot_data()
