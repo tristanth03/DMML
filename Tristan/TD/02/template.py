@@ -125,13 +125,13 @@ if __name__ == "__main__":
 
 
     
-    # features,targets,classes = gen_data(50, [-1,2], [np.sqrt(5),1])
-    # (train_features, train_targets), (test_features, test_targets)\
-    #     = split_train_test(features, targets, train_ratio=0.8)
-    # class_mean = mean_of_class(train_features, train_targets, 0)
-    # class_cov = covar_of_class(train_features, train_targets, 0)
-    # l = maximum_likelihood(train_features,train_targets,test_features,classes)
-    # print(l)
+    features,targets,classes = gen_data(50, [-1,1], [np.sqrt(5),np.sqrt(5)])
+    (train_features, train_targets), (test_features, test_targets)\
+        = split_train_test(features, targets, train_ratio=0.8)
+    class_mean = mean_of_class(train_features, train_targets, 0)
+    class_cov = covar_of_class(train_features, train_targets, 0)
+    l = maximum_likelihood(train_features,train_targets,test_features,classes)
+    print(l)
     # print(predict(l))
     
     # for _class in range(features.shape[1]):
@@ -167,7 +167,7 @@ if __name__ == "__main__":
             correct_preds[_class] += 1
         accuracy[_class] = correct_preds[_class] / class_count[_class]
     
-    print(accuracy)
+    # print(accuracy)
         
 
 
