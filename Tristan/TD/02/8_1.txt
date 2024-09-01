@@ -5,7 +5,7 @@ Reason 2: the variance is rather small i.e. its noise impact will not be large, 
 Reason 3: If we think about the distributions are also very far apart further indicating the unlikely event of a datapoint being between both distributions.
 
 (B)
-1. Increasing the number of datapoints n will lead to more accuracy and a more realistic comparison.
+1. Increasing the number of datapoints n will lead to a more realistic comparison and the classs approaches to its corresponding distribution, the accuracy stays relatively high (on sama distributions).
 2. Setting the mean to unique values per class i.e. having it vastly different will cause the classification to be easier. (Very different mean values for each class).
 3. Lowering the standard deviation results in less noice thus easier classification thus more accuracy.
 
