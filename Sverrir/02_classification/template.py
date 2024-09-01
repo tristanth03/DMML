@@ -40,8 +40,8 @@ def plot_data(
     markers = ['o', 'x'] 
     y_values = [0]*len(features)
     for class_id in classes:
-        class_features = [features[i] for i in range(len(features)) if targets[i] == class_id]
-        class_y_values = [y_values[i] for i in range(len(y_values)) if targets[i] == class_id]
+        class_features = features[targets == class_id]
+        class_y_values = y_values[targets == class_id]
         
         plt.scatter(class_features, class_y_values, marker=markers[class_id], label=f'Class {class_id}')
     plt.show()
@@ -175,6 +175,6 @@ if __name__ == "__main__":
     print(accuracy)
  
 
-    
+
 
     
