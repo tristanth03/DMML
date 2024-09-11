@@ -115,20 +115,18 @@ def predict(likelihoods: np.ndarray):
     return pred
 
 
+
 def plot_data():
-    features,targets,classes = gen_data(50, [-1,1], [np.sqrt(5),np.sqrt(5)])
-    (train_features, train_targets), (test_features, test_targets)\
-        = split_train_test(features, targets, train_ratio=0.8)
-
-    for _class in range(features.shape[1]):
-
-        # Some general shapes for markers, one for even nums and one for odd
-        if _class % 2 == 0:
+    features, targets, classes = gen_data(50, [-1, 1], [np.sqrt(5), np.sqrt(5)])
+    for _class in classes:
+        if _class % 2 == 0: # even -> 0 odd -> x
             marker = 'o'
         else:
             marker = 'x'
-        
-        plt.scatter(features[:,_class],np.array([0]*features.shape[0]),marker=marker,label=fr"Class {_class}")
+        class_features = features[targets == _class]
+
+        plt.scatter(class_features, np.zeros_like(class_features), marker=marker, label=fr"Class {_class}")
+    
     plt.legend()
     plt.title("Test and train data, seed: 1234")
     plt.xlabel("Numerical value")
@@ -166,7 +164,7 @@ if __name__ == "__main__":
 
 
     
-    # features,targets,classes = gen_data(50, [-1,1], [np.sqrt(5),np.sqrt(5)])
+    # features,targets,classes = gen_data(50, [-0,0], [np.sqrt(2),np.sqrt(2)])
     # (train_features, train_targets), (test_features, test_targets)\
     #     = split_train_test(features, targets, train_ratio=0.8)
     # class_mean = mean_of_class(train_features, train_targets, 0)
@@ -175,4 +173,4 @@ if __name__ == "__main__":
     # print(l)
     # print(predict(l))
 
-    plot_data()
+    case_study()
