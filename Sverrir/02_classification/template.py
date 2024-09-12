@@ -1,6 +1,6 @@
-# Author: 
-# Date:
-# Project: 
+# Author: Sverrir hákonarson
+# Date: 01.09.2024
+# Project: Skiladæmi 2
 # Acknowledgements: 
 #
 
