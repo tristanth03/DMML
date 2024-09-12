@@ -31,11 +31,38 @@ def mvn_basis(
     * fi - [NxM] is the basis function vectors containing a basis function
     output fi for each data vector x in features
     '''
-    pass
+    M,D = mu.shape
+    N = features.shape[0]
+    sigma_k = var*torch.eye(M)
+    basis_func = torch.zeros(N,M)
+    for i in range(M):
+        phi_k = multivariate_normal(mu[i,:],sigma_k[i,i])
+        basis_func[:,i] = torch.asarray(phi_k.pdf(features))
+
+    return basis_func
 
 
 def _plot_mvn():
-    pass
+    '''Assuming same example'''
+
+
+    X, t = load_regression_iris()
+    N, D = X.shape
+    M, var = 10, 10
+    mu = torch.zeros((M, D))
+    plt.figure(figsize=(10,5))
+    for i in range(D):
+        mmin = torch.min(X[:, i])
+        mmax = torch.max(X[:, i])
+        mu[:, i] = torch.linspace(mmin, mmax, M)
+    fi = mvn_basis(X, mu, var)
+    for i in range(fi.shape[1]):
+        plt.plot(fi[:,i])
+    plt.show()
+
+
+
+    
 
 
 def max_likelihood_linreg(
@@ -53,7 +80,14 @@ def max_likelihood_linreg(
 
     Output: [Mx1], the maximum likelihood estimate of w for the linear model
     '''
-    pass
+
+    # the solution for the weigths is found in p.137, eq.4.27 (Bishop)
+    # (lambda*identity+phi^T*phi)^-1*phi^T*t
+    M,N = fi.shape 
+    inner = (lamda*torch.eye(N)+torch.transpose(fi)*fi)
+    outer = torch.transpose(fi)*t
+    w = torch.inverse(inner)*outer
+    return w
 
 
 def linear_model(
@@ -81,4 +115,14 @@ if __name__ == "__main__":
     """
     Keep all your test code here or in another file.
     """
-    pass
+    X, t = load_regression_iris()
+    N, D = X.shape
+    M, var = 10, 10
+    mu = torch.zeros((M, D))
+    for i in range(D):
+        mmin = torch.min(X[:, i])
+        mmax = torch.max(X[:, i])
+        mu[:, i] = torch.linspace(mmin, mmax, M)
+    fi = mvn_basis(X, mu, var) 
+
+    _plot_mvn()
