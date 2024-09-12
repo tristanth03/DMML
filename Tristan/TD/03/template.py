@@ -60,11 +60,6 @@ def _plot_mvn():
         plt.plot(fi[:,i])
     plt.show()
 
-
-
-    
-
-
 def max_likelihood_linreg(
     fi: torch.Tensor,
     targets: torch.Tensor,
@@ -81,12 +76,12 @@ def max_likelihood_linreg(
     Output: [Mx1], the maximum likelihood estimate of w for the linear model
     '''
 
-    # the solution for the weigths is found in p.137, eq.4.27 (Bishop)
+    # the solution for the weigths is found on p.137, eq.4.27 (Bishop)
     # (lambda*identity+phi^T*phi)^-1*phi^T*t
-    M,N = fi.shape 
-    inner = (lamda*torch.eye(N)+torch.transpose(fi)*fi)
-    outer = torch.transpose(fi)*t
-    w = torch.inverse(inner)*outer
+    N,M = fi.shape 
+    inner = torch.inverse(lamda*torch.eye(M)+torch.matmul(fi.t(),fi))
+    outer = torch.matmul(fi.t(),targets)
+    w = torch.matmul(inner,outer)
     return w
 
 
@@ -108,7 +103,13 @@ def linear_model(
 
     Output: [Nx1] The prediction for each data vector in features
     '''
-    pass
+
+    # y = phi*w , p.136, ch 4.1.4, (Bishop)
+    
+    fi = mvn_basis(features,mu,var)
+    y_hat = torch.matmul(fi,w)
+
+    return y_hat
 
 
 if __name__ == "__main__":
@@ -125,4 +126,24 @@ if __name__ == "__main__":
         mu[:, i] = torch.linspace(mmin, mmax, M)
     fi = mvn_basis(X, mu, var) 
 
-    _plot_mvn()
+    # _plot_mvn()
+    
+    mse = []
+    lambda_values = torch.logspace(-10, 20, 20)
+    for lamda in lambda_values:
+        wml = max_likelihood_linreg(fi, t, lamda)
+        pred = linear_model(X,mu,var,wml)
+        mse_loss = torch.nn.MSELoss()
+        mse.append(mse_loss(pred,t))
+        # plt.plot(pred,'*')
+
+    plt.plot(lambda_values,mse,'-o')
+    plt.xscale('log')
+    plt.show()
+    # plt.plot(t,'.')   
+    # plt.show()
+
+    # bias variance tradeoff pælingar, W vs \lambda og ....
+    # leiða út jöfnu (lausn!!!)
+
+    
