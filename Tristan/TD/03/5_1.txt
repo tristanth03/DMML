@@ -1,0 +1,12 @@
+The measured MSE is approximately 0.43, as cshownin plot 5_a.png.
+Based on that number alone we can say that the error is not small and the prediction is far from perfect.
+If we take a look at the predictions and targets plot (5_a.png), we can say that our predictions are never spot on. 
+We can see that our model misinterprets the data clusters as being two instead of three, thus suggesting that our model is too simple.
+We might want to lower the weight penalty (lambda) a little so our model can handle more complex data i.e. allow the model to predict more freely.
+
+To continue with these thoughts I created plot 5_b.png. There the effects on the MSE due to different lambda values can be seen.
+To handle this more generally, I split the data to train and test sets with the help of tools.py (which I updated/fixed). As can be seen in (5_b.png)
+there are optimal values of lambda that minimize the MSE. With lambda approaching infinity the MSE reaches a constant value that actually represents
+the mean of the target values, it is clear that creating a model that simple will most likely result in bad but general fits for data similar to this.
+With lambda approaching zero we will most likely overfit the data that might result in low train MSE but super high test MSE. We are essentially
+allowing the model to predict freely and remove the regularization term.
