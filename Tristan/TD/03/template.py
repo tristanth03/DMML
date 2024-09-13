@@ -1,13 +1,14 @@
 # Author: Tristan Thordarson
 # Date: 12.09.2024
 # Project: 03
-# Acknowledgements: 
-#
+# Acknowledgements: https://pytorch.org/docs/stable/generated/torch.Tensor.item.html
+
 
 import torch
 import matplotlib.pyplot as plt
 
 from tools import load_regression_iris
+from tools import split_train_test
 from scipy.stats import multivariate_normal
 
 
@@ -58,12 +59,10 @@ def _plot_mvn():
     fi = mvn_basis(X, mu, var)
     for i in range(fi.shape[1]):
         plt.plot(fi[:,i])
+    plt.xlabel("N")
+    plt.ylabel("Numerical value")
+    plt.title("Output of M-many basis functions")
     plt.show()
-
-
-
-    
-
 
 def max_likelihood_linreg(
     fi: torch.Tensor,
@@ -81,12 +80,12 @@ def max_likelihood_linreg(
     Output: [Mx1], the maximum likelihood estimate of w for the linear model
     '''
 
-    # the solution for the weigths is found in p.137, eq.4.27 (Bishop)
+    # the solution for the weigths is found on p.137, eq.4.27 (Bishop)
     # (lambda*identity+phi^T*phi)^-1*phi^T*t
-    M,N = fi.shape 
-    inner = (lamda*torch.eye(N)+torch.transpose(fi)*fi)
-    outer = torch.transpose(fi)*t
-    w = torch.inverse(inner)*outer
+    N,M = fi.shape 
+    inner = torch.inverse(lamda*torch.eye(M)+torch.matmul(fi.t(),fi))
+    outer = torch.matmul(fi.t(),targets)
+    w = torch.matmul(inner,outer)
     return w
 
 
@@ -108,13 +107,60 @@ def linear_model(
 
     Output: [Nx1] The prediction for each data vector in features
     '''
-    pass
+
+    # y = phi*w , p.136, ch 4.1.4, (Bishop)
+    
+    fi = mvn_basis(features,mu,var)
+    y_hat = torch.matmul(fi,w)
+
+    return y_hat
 
 
-if __name__ == "__main__":
-    """
-    Keep all your test code here or in another file.
-    """
+
+def plot_loss():
+    '''Plotting the MSE loss for train and test datasets with differents lambda values'''
+    torch.manual_seed(1234) # Some random seed for the data shuffling part in split_train_test
+    X, t = load_regression_iris()
+    N, D = X.shape
+    M, var = 10, 10
+    mu = torch.zeros((M, D))
+    for i in range(D):
+        mmin = torch.min(X[:, i])
+        mmax = torch.max(X[:, i])
+        mu[:, i] = torch.linspace(mmin, mmax, M)
+ 
+    (train_features, train_targets), (test_features, test_targets) = split_train_test(X,t,0.9) # I fixed the tools.py torch.random.permutation->torch.randperm
+
+    fi_train = mvn_basis(train_features,mu,var)
+    fi_test = mvn_basis(test_features,mu,var)
+
+    train_mse = []
+    test_mse = []
+    lambda_values = torch.logspace(-12, 20, 20)
+    mse_loss_train = torch.nn.MSELoss()
+    mse_loss_test = torch.nn.MSELoss()
+    for lamda in lambda_values:
+        wml_train = max_likelihood_linreg(fi_train, train_targets, lamda)
+        wml_test = max_likelihood_linreg(fi_test, test_targets, lamda)
+        pred_train = linear_model(train_features,mu,var,wml_train)
+        pred_test = linear_model(test_features,mu,var,wml_test)
+        
+        train_mse.append(mse_loss_train(pred_train,train_targets).item())
+        test_mse.append(mse_loss_test(pred_test,test_targets).item())
+        
+
+    plt.plot(lambda_values,train_mse,'--o',label='Train')
+    plt.plot(lambda_values,test_mse,'--o',label='Test')
+    plt.legend()
+    plt.xscale('log')
+    plt.yscale('log')
+    plt.grid(True)
+    plt.xlabel(fr'$\lambda$')
+    plt.ylabel(r"$\mathcal{L}_{MSE}$")
+    plt.title(fr'Comparison of the MSE loss for different $\lambda$ values')
+    plt.show()
+
+def plot_pred_vs_target():
     X, t = load_regression_iris()
     N, D = X.shape
     M, var = 10, 10
@@ -124,5 +170,43 @@ if __name__ == "__main__":
         mmax = torch.max(X[:, i])
         mu[:, i] = torch.linspace(mmin, mmax, M)
     fi = mvn_basis(X, mu, var) 
+    lamda = 0.001
+    wml = max_likelihood_linreg(fi,t,lamda)
+    pred = linear_model(X,mu,var,wml)
+    mse_loss = torch.nn.MSELoss()
+    mse = mse_loss(pred,t).item()
+    plt.plot(t,'.',label='Target values')   
+    plt.plot(pred,'.',label='Predicted values')
+    plt.title(fr'Prediction and target values, $\lambda$ = {lamda}; MSE = {round(mse,2)}')
+    plt.legend()
+    plt.show()
+    
+
+
+
+
+if __name__ == "__main__":
+    """
+    Keep all your test code here or in another file.
+    """
+    
 
     _plot_mvn()
+
+    plot_pred_vs_target()
+    
+    plot_loss()
+
+
+    
+
+    
+
+
+
+
+
+    # bias variance tradeoff pælingar, W vs \lambda og ....
+    # leiða út jöfnu (lausn!!!)
+
+    
