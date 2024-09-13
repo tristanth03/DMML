@@ -147,8 +147,8 @@ def plot_loss():
         test_mse.append(mse_loss_test(pred_test,test_targets).item())
         
 
-    plt.plot(lambda_values,train_mse,'--o',label='Train')
-    plt.plot(lambda_values,test_mse,'--o',label='Test')
+    plt.plot(lambda_values,train_mse,'--o',label='Train (90%)')
+    plt.plot(lambda_values,test_mse,'--o',label='Test (10%)')
     plt.legend()
     plt.xscale('log')
     plt.yscale('log')
