@@ -32,13 +32,30 @@ def mvn_basis(
     output fi for each data vector x in features
     '''
     
-
-    
+    N, D = features.shape
+    M, _ = mu.shape 
+    fi = torch.zeros(N, M)
+    cov_matrix = var * torch.eye(D)
+    for j in range(M):
+         mvn = multivariate_normal(mu[j], cov_matrix)
+         fi[:, j] = torch.tensor(mvn.pdf(features))
+    return fi
     
 
 
 def _plot_mvn():
-    pass
+    X, t = load_regression_iris()
+    N, D = X.shape
+    M, var = 10, 10
+    mu = torch.zeros((M, D))
+    for i in range(D):
+        mmin = torch.min(X[:, i])
+        mmax = torch.max(X[:, i])
+        mu[:, i] = torch.linspace(mmin, mmax, M)
+    fi = mvn_basis(X, mu, var) 
+    for x in range(M): 
+        plt.plot(fi[:,x])
+    plt.show()
 
 
 def max_likelihood_linreg(
@@ -56,8 +73,14 @@ def max_likelihood_linreg(
 
     Output: [Mx1], the maximum likelihood estimate of w for the linear model
     '''
-    pass
-
+    # I am using formula 4.27 on page 118 in the book.
+    gram_mat = torch.matmul(fi.T, fi)
+    lamda_mat = lamda * torch.eye(gram_mat.shape[0])
+    inner_mat = gram_mat+lamda_mat
+    outer_mat = torch.matmul(fi.T, targets)
+    weights = torch.matmul(torch.inverse(inner_mat),outer_mat)
+    return weights
+    
 
 def linear_model(
     features: torch.Tensor,
@@ -77,7 +100,10 @@ def linear_model(
 
     Output: [Nx1] The prediction for each data vector in features
     '''
-    pass
+    fi = mvn_basis(features, mu, var)
+    y_hat = torch.matmul(w, fi.T)
+    return y_hat
+
 
 
 if __name__ == "__main__":
@@ -93,5 +119,9 @@ if __name__ == "__main__":
         mmax = torch.max(X[:, i])
         mu[:, i] = torch.linspace(mmin, mmax, M)
     fi = mvn_basis(X, mu, var)
-
+    #print(fi)
+    #_plot_mvn()
+    wml = max_likelihood_linreg(fi, t, 0.001)
+    prediction = linear_model(X, mu, var, wml)
+    print(prediction)
 
