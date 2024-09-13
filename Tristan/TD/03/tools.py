@@ -28,7 +28,7 @@ def split_train_test(
     where the number of items in the training set is according
     to the given train_ratio
     '''
-    p = torch.random.permutation(features.shape[0])
+    p = torch.randperm(features.shape[0])
     features = features[p]
     targets = targets[p]
 
