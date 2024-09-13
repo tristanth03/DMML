@@ -115,8 +115,6 @@ def linear_model(
 
     return y_hat
 
-
-
 def plot_loss():
     '''Plotting the MSE loss for train and test datasets with differents lambda values'''
     torch.manual_seed(1234) # Some random seed for the data shuffling part in split_train_test
@@ -182,9 +180,6 @@ def plot_pred_vs_target():
     plt.show()
     
 
-
-
-
 if __name__ == "__main__":
     """
     Keep all your test code here or in another file.
@@ -196,17 +191,4 @@ if __name__ == "__main__":
     plot_pred_vs_target()
     
     plot_loss()
-
-
-    
-
-    
-
-
-
-
-
-    # bias variance tradeoff pælingar, W vs \lambda og ....
-    # leiða út jöfnu (lausn!!!)
-
     
