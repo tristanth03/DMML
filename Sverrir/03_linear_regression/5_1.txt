@@ -1,0 +1,23 @@
+
+These predictions are ok but not that great. We see that the actual target values cluster into three clusters 
+but the predicted values cluster into 2 clusters and the predicted values sigificantly underestimate the 
+actual target values for values greater than 1. However the model captures some aspects of
+the actual target values but it is far from being optimal and in order to get closer we need to tune tune
+lamda even further so it improves.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+The current model captures some aspects of the target values but its performance is far from optimal. 
+The significant differences between actual and predicted values, especially in higher ranges, 
+indicate a need for further tuning and model evaluation.
