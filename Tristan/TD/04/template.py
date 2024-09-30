@@ -18,8 +18,8 @@ def sigmoid(x: torch.Tensor) -> torch.Tensor:
     '''
     Calculate the sigmoid of x
     '''
-    a = torch.where(x>=-100,x,0.0) # torch method to check element wise on the tensor
-    sigmoid = 1/(1+torch.exp(-x)) # eq 5.42
+    
+    sigmoid = torch.where(x<-100,torch.Tensor([0.0]),1/(1+torch.exp(-x))) # eq 5.42
     return sigmoid
 
 
@@ -57,6 +57,7 @@ def ffnn(
     Computes the output and hidden layer variables for a
     single hidden layer feed-forward neural network.
     '''
+
     b = torch.Tensor([1.0]) # x0, bias
     a0 = x # input layer (input*indentity) [1x(D)]
     D = x.shape[0]
@@ -83,14 +84,18 @@ def backprop(
     for the given input pair x, target_y
     '''
 
-    # 1
-    y, z0, z1, a1, a2 = ffnn(x, M, K, W1, W2)
+    # 1 
+    y, z0, z1, a1, a2 = ffnn(x, M, K, W1, W2) # ffnn
+
     # 2
-    delta_K = y-target_y
+    # loss gradient for the output layer (gradient of the loss w.r.t. parameters in layer 2)
+    delta_K = y-target_y # K
+
     # 3
-    d_sigm = d_sigmoid(a1)
+    d_sigm = d_sigmoid(a1) # M
+    # loss grafient for the hidden layer (gradient of loss w.r.t. parameters in layer 1)
     delta_J = d_sigm*(torch.matmul(W2[1:,:],delta_K)) # removing the bias, assuming its the first row
-    # !!!!! Skrifa smá línu samantekt hér!!!
+
     # 4
     dE1 = torch.zeros(W1.shape)
     dE2 = torch.zeros(W2.shape)
@@ -131,11 +136,11 @@ def train_nn(
     
     for epoch in range(epochs):
         # This training algorithm is memoryless in a sense that we do not hold on to older weights
-        # 1: initializing W1,W2,dE1 and dE2 
+        # Initializing dE1_tot and dE2_tot with each loop 
         dE1_tot = torch.zeros(D+1,M)
         dE2_tot = torch.zeros(M+1,K)
 
-        # implementa að stoppa ef loss hækkar meira en það var í upphafi
+        
         Y_hat = []
 
         for n in range(N):
@@ -160,10 +165,7 @@ def train_nn(
         misclassification_rate_tot.append(torch.sum(Y_guess != target_Y_indx)/N)
 
         
-        
-
-
-
+    
     last_guess = Y_guess
     Loss_tot = torch.stack(Loss_tot)
     misclassification_rate_tot = torch.stack(misclassification_rate_tot)
@@ -193,46 +195,79 @@ def test_nn(
     
     
 def accuracy(misclassification_rate):
+    '''
+    Calculate the accuracy based on the misclassification rate.
+    '''
     accuracy = 1-misclassification_rate
+
     return accuracy
 
 def plot_loss(Etotal):
-    
+    '''
+    Plotting the loss
+    '''
     plt.plot(Etotal)
+    plt.title("Loss / Total error")
+    plt.xlabel(fr"Epoch $\tau$")
+    plt.ylabel("Total error")
+    plt.ylim(0,3)
     plt.show()
 
 
 def plot_misclassification_rate(misclassification_rate):
-    
+    '''
+    Plotting the evolution of the misclassification rate
+    '''
     plt.plot(misclassification_rate)
+    plt.title("Misclassification rate")
+    plt.xlabel(fr"Epoch $\tau$")
+    plt.ylabel("Misclassification rate")
     plt.show()
 
 
-def confusion_matrix():
-    pass
+def confusion_matrix(K,targets,guesses):
+    '''
+    Confusion matrix
+    '''
+    targets = targets.long()
+    guesses = guesses.long()
+    c_mat = torch.zeros(K,K)
+    N = targets.shape[0]
+    for preds in range(N):
+        c_mat[targets[preds],guesses[preds]] += 1
 
-def extra():
-    # l = w.shape[0]
-
-    # 1
-    # ffnn with k_i hidden nodes per hidden layer 
-    # with l-many hidden layers
-
-    # 2
-    # Manual cross-entropy
-    # torch.log(vector)
-    # Loss = torch.nn.CrossEntropyLoss()  
-
-    pass
+    return c_mat
 
 
+def test__1_1():
+    '''
+    Test case for the Sigmoid
+    '''
+    s = sigmoid(torch.Tensor([0.5]))
+    d_s = d_sigmoid(torch.Tensor([0.2]))
 
-if __name__ == "__main__":
-    """
-    You can test your code inside this scope without having to comment it out
-    everytime before submitting. It also makes it easier for you to
-    know what is going on in your code.
-    """
+    print("Sigmoid")
+    print(s)
+    print("The derivative of Sigmoid")
+    print(d_s)
+
+def test__1_2():
+    '''
+    Test case for the Perceptron
+    '''
+    p1 = perceptron(torch.Tensor([1.0, 2.3, 1.9]), torch.Tensor([0.2, 0.3, 0.1]))
+    p2 = perceptron(torch.Tensor([0.2, 0.4]), torch.Tensor([0.1, 0.4]))
+
+    print("First Perceptron")
+    print(p1)
+    print("Second Perceptron")
+    print(p2)
+
+def test__1_3():
+    '''
+    Test case for the Forward Propagation
+    '''
+
     # initialize the random generator to get repeatable results
     torch.manual_seed(4321)
     features, targets, classes = load_iris()
@@ -249,15 +284,26 @@ if __name__ == "__main__":
     # Initialize two random weight matrices
     W1 = 2 * torch.rand(D + 1, M) - 1
     W2 = 2 * torch.rand(M + 1, K) - 1
-    # y, z0, z1, a1, a2 = ffnn(x, M, K, W1, W2)
+    y, z0, z1, a1, a2 = ffnn(x, M, K, W1, W2)
 
-    # print(ffnn(x, M, K, W1, W2))
+    print(f"y: {y}")
+    print(f"z0: {z0}")
+    print(f"z1: {z1}")
+    print(f"a1: {a1}")
+    print(f"a2: {a2}")
+
+def test__1_4():
+    '''
+    Test case for the Back Propagation
+    '''
+
     # initialize the random generator to get repeatable results
     torch.manual_seed(4321)
     features, targets, classes = load_iris()
     (train_features, train_targets), (test_features, test_targets) = \
         split_train_test(features, targets)
-    # initialize random generator to get predictable results
+    # initialize the random generator to get repeatable results
+ 
     torch.manual_seed(42)
 
     K = 3  # number of classes
@@ -274,13 +320,63 @@ if __name__ == "__main__":
     W1 = 2 * torch.rand(D + 1, M) - 1
     W2 = 2 * torch.rand(M + 1, K) - 1
 
-    # y, dE1, dE2 = backprop(x, target_y, M, K, W1, W2)
-    # print(y)
-    # print(dE1)
-    # print(dE2)
+    y, dE1, dE2 = backprop(x, target_y, M, K, W1, W2)
+
+    print(f"y: {y}")
+    print("dE1")
+    print(dE1)
+    print("dE2")
+    print(dE2)
+
+def test__2_1():
+    '''
+    Test case for the Training of the FFNN
+    '''
+
+    # initialize the random generator to get repeatable results
+    torch.manual_seed(4321)
+    features, targets, classes = load_iris()
+    (train_features, train_targets), (test_features, test_targets) = \
+        split_train_test(features, targets)
+    # initialize the random generator to get repeatable results
     # initialize the random seed to get predictable results
-# initialize the random seed to get predictable results
-# initialize the random seed to get predictable results
+    torch.manual_seed(1234)
+
+    K = 3  # number of classes
+    M = 6
+    D = train_features.shape[1]
+
+    # Initialize two random weight matrices
+    W1 = 2 * torch.rand(D + 1, M) - 1
+    W2 = 2 * torch.rand(M + 1, K) - 1
+    W1tr, W2tr, Etotal, misclassification_rate, last_guesses = train_nn(
+        train_features[:20, :], train_targets[:20], M, K, W1, W2, 500, 0.1)
+    
+    print("W1tr")
+    print(W1tr)
+    print("W2tr")
+    print(W2tr)
+    print("Etotal")
+    print(Etotal)
+    print("Misclassification_rate")
+    print(misclassification_rate)
+    print("Last_guesses")
+    print(last_guesses)
+
+def test__2_2():
+    '''
+    Test case for the guess
+    '''
+
+    # initialize the random generator to get repeatable results
+    torch.manual_seed(4321)
+    features, targets, classes = load_iris()
+    (train_features, train_targets), (test_features, test_targets) = \
+        split_train_test(features, targets)
+    # initialize the random generator to get repeatable results
+    # initialize the random seed to get predictable results
+    torch.manual_seed(1234)
+
     torch.manual_seed(1234)
 
     K = 3  # number of classes
@@ -293,12 +389,86 @@ if __name__ == "__main__":
     W1tr, W2tr, Etotal, misclassification_rate, last_guesses = train_nn(
         train_features[:20, :], train_targets[:20], M, K, W1, W2, 500, 0.1)
    
+    X_test = test_features[:20,:]
+    guesses = test_nn(X_test,M,K,W1tr,W2tr)
 
-    guesses = test_nn(test_features[:20,:],M,K,W1tr,W2tr)
+    print("Guess")
     print(guesses)
-    print(test_targets[:20])
-    plot_loss(Etotal)
-    plot_misclassification_rate(misclassification_rate)
-    print(accuracy(misclassification_rate))
 
-#### 
+def test__2_3():
+    '''
+    Section 2.3
+    '''
+    seed = 10
+    # initialize the random generator to get repeatable results
+    torch.manual_seed(seed)
+    features, targets, classes = load_iris()
+    (train_features, train_targets), (test_features, test_targets) = \
+        split_train_test(features, targets)
+    
+    X_train = train_features
+    Targets_train = train_targets
+    X_test = test_features
+    Targets_test = test_targets
+
+    K = 3  # number of classes
+    M = 6 # nodes in hidden layer
+    D = train_features.shape[1]
+
+    # Initialize two random weight matrices
+    W1 = 2 * torch.rand(D + 1, M) - 1
+    W2 = 2 * torch.rand(M + 1, K) - 1
+
+    eta = 0.1 # learning rate
+    epochs = 1000
+
+    W1tr, W2tr, Etotal, misclassification_rate, last_guesses = train_nn(
+    X_train, Targets_train, M, K, W1, W2, epochs, eta)
+
+
+    # 1
+    acc = accuracy(misclassification_rate)
+    # 2
+    c_mat_train = confusion_matrix(K,Targets_train,last_guesses)
+    test_guess = test_nn(X_test,M,K,W1tr,W2tr)
+    c_mat_test = confusion_matrix(K,Targets_test,test_guess)
+    # 3 
+    plot_loss(Etotal)
+    # 4
+    plot_misclassification_rate(misclassification_rate)
+
+
+    print(f"Seed: {seed}")
+    print(f"Accuracy: {acc}")
+    print("Confusion matrix (Train)")
+    print(c_mat_train)
+    print("Confusion matrix (Test)")
+    print(c_mat_test)
+
+def extra():
+    # l = w.shape[0]
+
+    # 1
+    # ffnn with k_i hidden nodes per hidden layer 
+    # with l-many hidden layers
+
+    # 2
+    # Manual cross-entropy
+    # torch.log(vector)
+    # Loss = torch.nn.CrossEntropyLoss()  
+
+
+    # infty loss stopper
+    pass
+
+
+
+if __name__ == "__main__":
+    """
+    You can test your code inside this scope without having to comment it out
+    everytime before submitting. It also makes it easier for you to
+    know what is going on in your code.
+    """
+    
+    
+    test__2_3()
