@@ -101,9 +101,8 @@ def linear_model(
     Output: [Nx1] The prediction for each data vector in features
     '''
     fi = mvn_basis(features, mu, var)
-    y_hat = torch.matmul(w, fi.T)
+    y_hat = torch.matmul(fi,w)
     return y_hat
-
 
 
 if __name__ == "__main__":
@@ -120,8 +119,14 @@ if __name__ == "__main__":
         mu[:, i] = torch.linspace(mmin, mmax, M)
     fi = mvn_basis(X, mu, var)
     #print(fi)
-    #_plot_mvn()
+    _plot_mvn()
     wml = max_likelihood_linreg(fi, t, 0.001)
     prediction = linear_model(X, mu, var, wml)
-    print(prediction)
+    mse = torch.mean((t- prediction)**2)
+    
+    plt.plot(t,'.',label='Target')
+    plt.plot(prediction,'.',label='Predicted')
+    plt.legend()
+   
+    plt.show()
 
