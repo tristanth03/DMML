@@ -8,8 +8,7 @@ def sigmoid(x: torch.Tensor) -> torch.Tensor:
     '''
     Calculate the sigmoid of x
     '''
-    a = torch.where(x < -100,0.0, x)
-    sigm = 1/(1+torch.exp(-a))
+    sigm = torch.where(x<-100,torch.Tensor([0.0]), 1/(1+torch.exp(-x))) # use the pytorch.where function to make the sigmoid equal to 0 if the corresponding element is less than -100
     return sigm
 
 
@@ -31,8 +30,8 @@ def perceptron(
     the result of applying the sigmoid activation
     to the weighted sum
     '''
-    a_0 = torch.dot(x,w)
-    return (a_0, sigmoid(a_0))
+    a_0 = torch.dot(w,x)
+    return a_0, sigmoid(a_0)
     
 
 
@@ -137,7 +136,6 @@ def train_nn(
         loss_N = -torch.sum(t*torch.log(y_hat)+(1-t)*torch.log(1-y_hat),dim=1)
         mean_loss = torch.mean(loss_N) # get the mean loss
         e_total.append(mean_loss) 
-
         misclassification_rate = torch.sum(guesses != t_train) / N
         all_misclassification_rates.append(misclassification_rate)
 
@@ -160,7 +158,43 @@ def test_nn(
     Return the predictions made by a network for all features
     in the test set X.
     '''
-    ...
+    guesses = []
+    N = X.shape[0] # the number of data points
+    for i in range(N):
+        y,z0,z1,a1,a2 = ffnn(X[i],M,K,W1,W2) # feeding the nn
+        guess = torch.argmax(y) # finding the guess with one hot encoding
+        guesses.append(guess) # appending the guess for each data point
+
+    guesses = torch.stack(guesses)
+    return guesses # returning all the guesses for the test data
+
+# Section 2_3
+def accuracy(misclassification_rate):
+    '''Calculating the accuracy'''
+    return 1- misclassification_rate
+def confusion_matrix(targets, guesses, k: int):
+    '''Calculating the confusion matrix with k nr of classes'''
+    confusion_matrix = torch.zeros(k,k) # initializing the matrix 
+    N = targets.shape[0] # nr of data points
+    for i in range(N): # going through each data point
+        confusion_matrix[targets[i], guesses[i]] += 1 
+    return confusion_matrix
+
+def plot_e_total(e_total):
+    '''plot the errors'''
+    plt.plot(e_total)
+    plt.plot(Etotal)
+    plt.title("Error")
+    plt.xlabel(fr"iteration")
+    plt.show()
+
+def plot_misclassification_rate(misclassification_rate):
+    ''' Plot the misclassification rate '''
+    plt.plot(misclassification_rate)
+    plt.title("Misclassification rate")
+    plt.xlabel(fr"iteration")
+    plt.show()
+
 
 
 if __name__ == "__main__":
@@ -175,51 +209,59 @@ if __name__ == "__main__":
     # print(perceptron(torch.Tensor([1.0, 2.3, 1.9]), torch.Tensor([0.2, 0.3, 0.1])))
     # print(perceptron(torch.Tensor([0.2, 0.4]), torch.Tensor([0.1, 0.4])))
 
-    # initialize random generator to get predictable results
+    # # initialize random generator to get predictable results
 
-    torch.manual_seed(4321)
-    features, targets, classes = load_iris()
-    (train_features, train_targets), (test_features, test_targets) = \
-    split_train_test(features, targets)
-    torch.manual_seed(42)
+    # torch.manual_seed(5)
+    # features, targets, classes = load_iris()
+    # (train_features, train_targets), (test_features, test_targets) = \
+    # split_train_test(features, targets)
+
+
+    # # K = 3  # number of classes
+    # # M = 6
+    # # D = train_features.shape[1]
+
+    # # x = features[0, :]
+
+    # # # create one-hot target for the feature
+    # # target_y = torch.zeros(K)
+    # # target_y[targets[0]] = 1.0
+
+    # # # Initialize two random weight matrices
+    # # W1 = 2 * torch.rand(D + 1, M) - 1
+    # # W2 = 2 * torch.rand(M + 1, K) - 1
+
+    # # y, dE1, dE2 = backprop(x, target_y, M, K, W1, W2)
+    # # #
+    # # print('------')
+    # # print(y)
+    # # print('-------')
+    # # print(dE1)
+    # # print('-------')
+    # # print(dE2)
+    # # initialize the random seed to get predictable results
+
 
     # K = 3  # number of classes
     # M = 6
     # D = train_features.shape[1]
 
-    # x = features[0, :]
-
-    # # create one-hot target for the feature
-    # target_y = torch.zeros(K)
-    # target_y[targets[0]] = 1.0
-
     # # Initialize two random weight matrices
     # W1 = 2 * torch.rand(D + 1, M) - 1
     # W2 = 2 * torch.rand(M + 1, K) - 1
+    # W1tr, W2tr, Etotal, misclassification_rate, last_guesses = train_nn(
+    #     train_features[:20, :], train_targets[:20], M, K, W1, W2, 500, 0.1)
 
-    # y, dE1, dE2 = backprop(x, target_y, M, K, W1, W2)
-    # #
-    # print('------')
-    # print(y)
-    # print('-------')
-    # print(dE1)
-    # print('-------')
-    # print(dE2)
-    # initialize the random seed to get predictable results
-    torch.manual_seed(1234)
 
-    K = 3  # number of classes
-    M = 6
-    D = train_features.shape[1]
+    # # test 2_3
+    # a = accuracy(misclassification_rate)
+    # print('accuracy = ', a)
+    # # seed = 1000, see above
+    # conf_matrix = confusion_matrix(train_targets[:20], last_guesses, K)
+    # print(conf_matrix)
+    #plot_e_total(Etotal)
+    #print(misclassification_rate)
+    #plot_misclassification_rate(misclassification_rate)
 
-    # Initialize two random weight matrices
-    W1 = 2 * torch.rand(D + 1, M) - 1
-    W2 = 2 * torch.rand(M + 1, K) - 1
-    W1tr, W2tr, Etotal, misclassification_rate, last_guesses = train_nn(
-        train_features[:20, :], train_targets[:20], M, K, W1, W2, 500, 0.1)
-    print(W1tr)
-    print(W2tr)
-    print(Etotal)
-    print('------------')
-    print(misclassification_rate)
-    print(last_guesses)
+
+    print(sigmoid(torch.Tensor([0.1,0.1])))
