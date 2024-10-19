@@ -106,7 +106,3 @@ class KernelMatrix():
 
     
         return jacobian_matrix
-
-    
-
-

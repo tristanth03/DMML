@@ -17,6 +17,6 @@ y[2,:] = exp.(x[2,:])
 
 activation = relu; N1=10_000; InDim = size(x)[1]; OutDim = 2
 model = Chain(DenseNTK(InDim=>N1,activation),DenseNTK(N1=>OutDim))|>f64
-
+display(size(K))
 K = kernel(model,x)
 eigen(K).values

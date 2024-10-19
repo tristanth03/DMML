@@ -26,19 +26,19 @@ def train_data_I():
 
 def train_data_II():
       
-    N = 100  # Number of points
-    D = 2 # Number of dimensions
+    N = 200000  # Number of points
+    D = 30 # Number of dimensions
 
     points = [[random.uniform(-1, 1) for _ in range(D)] for _ in range(N)]
     X = torch.tensor(points,dtype=torch.float64)
     T = torch.exp(X) # Targets
-    K = T.shape[1]
+    K = 1
    
     return X,N,D,T,K
 
 
 def ffnn_model(D,K):
-    M = [10000] # number of nodes per hidden layer
+    M = [100] # number of nodes per hidden layer
 
     model = nn.Sequential(
         DenseNTK(D,M[0],activation=nn.ReLU(),bias=True),
@@ -71,7 +71,8 @@ def train_model(
         optimizer.step() 
 
         L.append(loss)  # makes training a lot slower but ...
-
+        if (epoch + 1) % 100 == 0:
+            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.16f}")
     return L,model(x)
 
 
@@ -86,14 +87,18 @@ if __name__ == "__main__":
     Df = NTK_.jacobian_torch(model, X, show_progress=True)
 
     kernel = torch.matmul(Df,Df.T)
+    print(kernel)
+    # # eigenvalues are real (for the kernel matrix)
+    # eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float64) 
+    # eta = 1/(eig[1].item()) # 1/(lambda_max) 
 
-    # eigenvalues are real (for the kernel matrix)
-    eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float64) 
-    eta = 1/(eig[1].item()) # 1/(lambda_max) 
+
+    # num_epochs = 10000
+    # L,y= train_model(X,T,model,eta,num_epochs,opt="VanillaGD",problem_type="Regression")
+    
 
 
-    num_epochs = 1000
-    L,y= train_model(X,T,model,eta,num_epochs,opt="VanillaGD",problem_type="Regression",)
 
-    print(L)
+    
+
 
