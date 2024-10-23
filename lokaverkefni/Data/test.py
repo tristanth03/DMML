@@ -22,5 +22,5 @@ y_train_tensor = torch.tensor(y_train, dtype=torch.float32).view(-1, 1)  # Resha
 y_test_tensor = torch.tensor(y_test, dtype=torch.float32).view(-1, 1)
 
 # Check the tensor shapes
-print(X_train_tensor.shape)  # e.g., torch.Size([16512, 8])
-print(y_train_tensor.shape)  # e.g., torch.Size([16512, 1])
+print(X_train_tensor)  # e.g., torch.Size([16512, 8])
+print(y_train_tensor)  # e.g., torch.Size([16512, 1])
