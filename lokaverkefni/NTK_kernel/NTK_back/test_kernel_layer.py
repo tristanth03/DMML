@@ -26,11 +26,11 @@ def train_data_I():
 
 def train_data_II():
       
-    N = 200000  # Number of points
-    D = 30 # Number of dimensions
+    N = 20000  # Number of points
+    D = 8 # Number of dimensions
 
     points = [[random.uniform(-1, 1) for _ in range(D)] for _ in range(N)]
-    X = torch.tensor(points,dtype=torch.float64)
+    X = torch.tensor(points,dtype=torch.float32)
     T = torch.exp(X) # Targets
     K = 1
    
@@ -38,13 +38,16 @@ def train_data_II():
 
 
 def ffnn_model(D,K):
-    M = [100] # number of nodes per hidden layer
+    M = [128,64,32,16] # number of nodes per hidden layer
+
 
     model = nn.Sequential(
-        DenseNTK(D,M[0],activation=nn.ReLU(),bias=True),
-        DenseNTK(M[0],K,activation=nn.Identity(),bias=True)
-        
-    ).double() # double (extra precsison)
+        DenseNTK(D, M[0], activation=nn.ReLU(), bias=True),
+        DenseNTK(M[0], M[1], activation=nn.ReLU(), bias=True),
+        DenseNTK(M[1], M[2], activation=nn.ReLU(), bias=True),
+        DenseNTK(M[2], M[3], activation=nn.ReLU(), bias=True),
+        DenseNTK(M[3], K, activation=nn.Identity(), bias=True)
+    ) # Double precision for extra precision
 
     return model 
 def train_model(
