@@ -91,9 +91,9 @@ if __name__ == "__main__":
 
     kernel = torch.matmul(Df,Df.T)
     print(kernel)
-    # # eigenvalues are real (for the kernel matrix)
-    # eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float64) 
-    # eta = 1/(eig[1].item()) # 1/(lambda_max) 
+    # eigenvalues are real (for the kernel matrix)
+    eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float64) 
+    eta = 1/(eig[1].item()) # 1/(lambda_max) 
 
 
     # num_epochs = 10000
