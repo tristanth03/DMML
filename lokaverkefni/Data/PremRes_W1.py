@@ -7,9 +7,11 @@ from kernel_layer import DenseNTK
 import torch.nn as nn
 import torch.optim as optim
 import numpy as np
+from sklearn.model_selection import train_test_split
+import json
 
+torch.manual_seed(1212345)
 
-torch.manual_seed(1234)
 
 num_threads = psutil.cpu_count(logical=True)
 torch.set_num_threads(16)
@@ -22,20 +24,36 @@ def noisy_gaussian_wave_function(x, k=1, sigma=1, A=1,alpha=0.2):
 
 
     epsilon = torch.normal(mean=0.0, std=1.0, size=x.shape)  # Generate noise (epsilon) from N(0,1)
-    
     return A * torch.exp(-(x**2) / (2 * sigma**2)) * torch.cos(k * x + epsilon *alpha)
 
-def ffnn_model(D, K, M,activation=nn.ReLU()):
+def ffnn_model(D, K, M):
+    """
+    Constructs a Feedforward Neural Network (FFNN) with NTK layers.
+    
+    Parameters:
+        D (int): Input dimension size.
+        K (int): Output dimension size.
+        M (list): List of hidden layer sizes.
+        
+    Returns:
+        model (nn.Sequential): Sequential FFNN model.
+    """
+
     # Initialize the layers list
     layers = []
 
+    # Check if input is 1D and adjust accordingly
+    if D == 1:
+        input_dim = 1
+    else:
+        input_dim = D
 
-    # Add the first layer with input size D and first hidden layer size M[0]
-    layers.append(DenseNTK(D, M[0], activation=activation, bias=True))
+    # Add the first layer with input size input_dim and first hidden layer size M[0]
+    layers.append(DenseNTK(input_dim, M[0], activation=nn.LeakyReLU(), bias=True))
 
     # Add the remaining hidden layers dynamically
     for i in range(1, len(M)):
-        layers.append(DenseNTK(M[i-1], M[i], activation=activation, bias=True))
+        layers.append(DenseNTK(M[i-1], M[i], activation=nn.LeakyReLU(), bias=True))
 
     # Add the final output layer with the last hidden layer size and output size K
     layers.append(DenseNTK(M[-1], K, activation=nn.Identity(), bias=True))
@@ -44,6 +62,10 @@ def ffnn_model(D, K, M,activation=nn.ReLU()):
     model = nn.Sequential(*layers)
 
     return model
+
+
+
+    
 
 
 def test_case(plot=False):
@@ -183,56 +205,57 @@ def plot_fit(x,y_hat,t):
 if __name__ == "__main__":
 
     psi_vals , x_vals = test_case(False)
+
+
+
     D = x_vals.shape[0]
     K = psi_vals.shape[0]
-    M = [256,64,8]
-
-    model = ffnn_model(D,K,M,activation=nn.LeakyReLU)
-
-    NTK_ = KernelMatrix()
-    model = ffnn_model(D,K,M)
-    Df = NTK_.jacobian_torch(model, x_vals, show_progress=True)
-    kernel = torch.mm(Df,Df.T)
-
-    eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float32)
-    eig = torch.abs(eig)
-    eig = torch.sort(eig)[0]
+    D = x_vals.shape[0] if len(x_vals.shape) == 2 else 1  # Number of rows, default to 1 if 1D
+    K = psi_vals.shape[0] if len(psi_vals.shape) == 2 else 1  # Number of rows, default to 1 if 1D
 
 
-    eta = 1/eig[-1]
+    x_vals = x_vals.view(-1, D)  # Ensure x_vals is 2D with shape (N, D)
+    psi_vals = psi_vals.view(-1, K)  # Ensure psi_vals is 2D with shape (N, K)
+
+    print(x_vals)
+    M = [10, 10]  # Two hidden layers with 10 neurons each
+    model = ffnn_model(D, K, M)
+
+    for i in range(len(x_vals)):
+        print(model(x_vals[i]))
+
+   
+    # NTK_ = KernelMatrix()
+    # Df = NTK_.jacobian_torch(model, x_vals, show_progress=True)
+    # kernel = torch.mm(Df,Df.T)
+
+    # eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float32)
+    # eig = torch.abs(eig)
+    # eig = torch.sort(eig)[0]
+
+
+    # eta = 1/eig[-1]
+   
+    # # print(X_train)
+    # # print(y_train)
+    # L,y_ = train_model(x_vals,psi_vals,model,eta,5000,opt='VanillaGD',problem_type='Regression')
+    
+    # y_hat = [t.item() for t in y_]
+    # # eigens = [t.item() for t in eig]
+
+
+        
+
 
     
-    L,y_ = train_model(x_vals,psi_vals,model,eta,10000,opt='VanillaGD',problem_type='Regression')
-    Lo = [t.item() for t in L]
-    y_hat = [t.item() for t in y_]
-    eigens = [t.item() for t in eig]
 
- 
-    
-    # plot_fit(x_vals,y_hat,psi_vals)
+    # import json
 
+    # with open('eigen_wave_lr_ntk.json','w') as file:
+    #     json.dump(eigens,file)
 
-    # plot_loss(Lo)
+    # with open('loss_wave_lr_ntk.json','w') as file:
+    #     json.dump(Lo,file)
 
-
-    # plot_eig(eig)
-
-
-    
-
-    import json
-
-    with open('eigen_wave_lr_ntk.json','w') as file:
-        json.dump(eigens,file)
-
-    with open('loss_wave_lr_ntk.json','w') as file:
-        json.dump(Lo,file)
-
-    with open('fit_wave_lr_ntk.json','w') as file:
-        json.dump(y_hat,file)
-
-
-
-
-
- 
+    # with open('fit_wave_lr_ntk.json','w') as file:
+    #     json.dump(y_hat,file)
