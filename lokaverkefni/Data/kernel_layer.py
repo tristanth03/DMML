@@ -105,4 +105,4 @@ class KernelMatrix():
             print(f"\nTime taken: {time.time() - start_time} seconds")
 
     
-        return jacobian_matrix
+        return jacobian_matrix,y

@@ -10,7 +10,7 @@ import numpy as np
 from sklearn.model_selection import train_test_split
 import json
 
-torch.manual_seed(1212345)
+torch.manual_seed(1234)
 
 
 num_threads = psutil.cpu_count(logical=True)
@@ -42,14 +42,10 @@ def ffnn_model(D, K, M):
     # Initialize the layers list
     layers = []
 
-    # Check if input is 1D and adjust accordingly
-    if D == 1:
-        input_dim = 1
-    else:
-        input_dim = D
+ 
 
     # Add the first layer with input size input_dim and first hidden layer size M[0]
-    layers.append(DenseNTK(input_dim, M[0], activation=nn.LeakyReLU(), bias=True))
+    layers.append(DenseNTK(D, M[0], activation=nn.LeakyReLU(), bias=True))
 
     # Add the remaining hidden layers dynamically
     for i in range(1, len(M)):
@@ -217,37 +213,39 @@ if __name__ == "__main__":
     x_vals = x_vals.view(-1, D)  # Ensure x_vals is 2D with shape (N, D)
     psi_vals = psi_vals.view(-1, K)  # Ensure psi_vals is 2D with shape (N, K)
 
-    print(x_vals)
-    M = [10, 10]  # Two hidden layers with 10 neurons each
+   
+
+    M = [100,100]  # Two hidden layers with 10 neurons each
     model = ffnn_model(D, K, M)
-
-    for i in range(len(x_vals)):
-        print(model(x_vals[i]))
+    print(model(x_vals))
 
    
-    # NTK_ = KernelMatrix()
-    # Df = NTK_.jacobian_torch(model, x_vals, show_progress=True)
-    # kernel = torch.mm(Df,Df.T)
+    NTK_ = KernelMatrix()
+    Df,y = NTK_.jacobian_torch(model, x_vals, show_progress=True)
+    kernel = torch.mm(Df,Df.T)
 
-    # eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float32)
-    # eig = torch.abs(eig)
-    # eig = torch.sort(eig)[0]
-
-
-    # eta = 1/eig[-1]
-   
-    # # print(X_train)
-    # # print(y_train)
-    # L,y_ = train_model(x_vals,psi_vals,model,eta,5000,opt='VanillaGD',problem_type='Regression')
+    eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float32)
+    eig = torch.abs(eig)
+    eig = torch.sort(eig)[0]
+ 
     
-    # y_hat = [t.item() for t in y_]
-    # # eigens = [t.item() for t in eig]
 
+    eta = 1/eig[-1]
+   
+    # print(X_train)
+    # print(y_train)
+    L,y_ = train_model(x_vals,psi_vals,model,eta,500,opt='VanillaGD',problem_type='Regression')
+    print(model(x_vals))
+    
+    y_hat = [t.item() for t in y_]
+    # eigens = [t.item() for t in eig]
+
+    plot_fit(x_vals,y_hat,psi_vals)
 
         
 
 
-    
+    plot_eig(eig)
 
     # import json
 
