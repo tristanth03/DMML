@@ -199,7 +199,7 @@ if __name__ == "__main__":
     eig = torch.sort(eig)[0]
 
 
-    eta = 0.001
+    eta = 1/eig[-1]
 
     
     L,y_ = train_model(x_vals,psi_vals,model,eta,10000,opt='VanillaGD',problem_type='Regression')
@@ -222,13 +222,13 @@ if __name__ == "__main__":
 
     import json
 
-    with open('eigen_wave_lr_0.0001.json','w') as file:
+    with open('eigen_wave_lr_ntk.json','w') as file:
         json.dump(eigens,file)
 
-    with open('loss_wave_lr_0.0001.json','w') as file:
+    with open('loss_wave_lr_ntk.json','w') as file:
         json.dump(Lo,file)
 
-    with open('fit_wave_lr_0.0001.json','w') as file:
+    with open('fit_wave_lr_ntk.json','w') as file:
         json.dump(y_hat,file)
 
 
