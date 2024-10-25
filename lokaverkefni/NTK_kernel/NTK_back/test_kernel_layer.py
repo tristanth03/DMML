@@ -7,7 +7,7 @@ import torch.linalg
 import torch.nn.functional as F
 import torch.optim as optim
 import random
-
+import matplotlib.pyplot as plt
 
 
 def train_data_I():
@@ -26,7 +26,7 @@ def train_data_I():
 
 def train_data_II():
       
-    N = 20000  # Number of points
+    N = 200  # Number of points
     D = 8 # Number of dimensions
 
     points = [[random.uniform(-1, 1) for _ in range(D)] for _ in range(N)]
@@ -79,7 +79,17 @@ def train_model(
     return L,model(x)
 
 
+def plot_loss(L):
+    plt.figure(figsize=(10, 6))
+    plt.plot(L,'.',markersize=2)
+    plt.title("Loss", fontsize=16)
+    plt.xlabel(r"Epoch ($\tau$)", fontsize=16)
+    plt.ylabel(r"$\mathcal{L}$", fontsize=16)
+    plt.xticks(fontsize=14)  # Adjust the font size for x-axis ticks
+    plt.yticks(fontsize=14)  # Adjust the font size for y-axis ticks
+    plt.yscale('log')
 
+    plt.show()
 
 if __name__ == "__main__":
     torch.manual_seed(1234)
@@ -93,15 +103,17 @@ if __name__ == "__main__":
     print(kernel)
     # eigenvalues are real (for the kernel matrix)
     eig = torch.linalg.eigvals(kernel).real.to(dtype=torch.float64) 
-    eta = 1/(eig[1].item()) # 1/(lambda_max) 
+    eta = 0.0001
 
 
-    # num_epochs = 10000
-    # L,y= train_model(X,T,model,eta,num_epochs,opt="VanillaGD",problem_type="Regression")
-    
+    num_epochs = 1000
+    L,y= train_model(X,T,model,eta,num_epochs,opt="VanillaGD",problem_type="Regression")
+    Lo = [t.item() for t in L]
+    y_hat = [t.item() for t in y]
 
-
-
-    
+    plot_loss(Lo)
+    plt.plot(y_hat)
+    plt.plot(T[:,1],'.')
+    plt.show()
 
 
