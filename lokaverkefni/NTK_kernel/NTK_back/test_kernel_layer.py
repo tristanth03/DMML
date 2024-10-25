@@ -106,6 +106,28 @@ if __name__ == "__main__":
     eta = 0.0001
 
 
+    class FFNN(nn.Module):
+        def __init__(self, input_size, hidden_size1, hidden_size2, output_size):
+            super(FFNN, self).__init__()
+            self.fc1 = DenseNTK(input_size, hidden_size1, activation=nn.ReLU())
+            self.fc2 = DenseNTK(hidden_size1, hidden_size2, activation=nn.ReLU())
+            self.fc3 = DenseNTK(hidden_size2, output_size)
+
+        def forward(self, x):
+            x = self.fc1(x)
+            x = self.fc2(x)
+            x = self.fc3(x)
+            return x
+
+    # Define model parameters
+    input_size = X.shape[1]
+    hidden_size1 = 64
+    hidden_size2 = 32
+    output_size = 1  # Assuming binary classification
+
+    # Instantiate the model, define loss function and optimizer
+    model = FFNN(input_size, hidden_size1, hidden_size2, output_size)
+
     num_epochs = 1000
     L,y= train_model(X,T,model,eta,num_epochs,opt="VanillaGD",problem_type="Regression")
     Lo = [t.item() for t in L]

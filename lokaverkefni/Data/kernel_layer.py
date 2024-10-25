@@ -39,6 +39,7 @@ class DenseNTK(nn.Module):
         self.activation = activation 
         
     def forward(self,x):
+        
         output = F.linear(x, self.weight, self.bias)
         output = self.activation(output)
 

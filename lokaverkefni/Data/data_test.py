@@ -1,98 +1,142 @@
 import torch
 import torch.nn as nn
+import torch.autograd as autograd
 import torch.optim as optim
-import torch.nn.functional as F
 import matplotlib.pyplot as plt
+import numpy as np
+from tqdm import tqdm
 
-# Assuming X and T are your training data and targets (tensors)
-X = torch.randn((100, 10))  # Example data with 100 samples, 10 features
-T = torch.randint(0, 2, (100,))  # Example binary targets (0 or 1)
-
-# Define the DenseNTK layer class
-class DenseNTK(nn.Module):
-    """
-    Class for the layers of a FFNN
-    I) Follows the torch.nn module (structure and syntax)
-    II
-    a) Initialize weights by ATS_NTK method (i.e. scaled by 1/sqrt(D))
-    b) Correct the forward pass
-    """
-
-    def __init__(
-        self,
-        in_features,  # input dim of layer
-        out_features,  # output dim of layer
-        activation=torch.nn.Identity(),  # no activation by default
-        bias=True,  # bias added by default
-        initialization_=None):
-        
-        super(DenseNTK, self).__init__()
-        # Initialize weights using ATS_NTK initialization
-        if initialization_:
-            self.weight = nn.Parameter(initialization_(in_features, out_features))
-        else:
-            # Default initialization with N(0, 1)/sqrt(in)
-            self.weight = nn.Parameter(torch.randn(out_features, in_features) / (in_features ** 0.5))
-
-        # Initialize bias
-        if bias:
-            self.bias = nn.Parameter(torch.randn(out_features))
-        else:
-            self.register_parameter('bias', None)
-
-        self.activation = activation 
-        
-    def forward(self, x):
-        
-        output = F.linear(x,self.weight, self.bias)
-        output = self.activation(output)
-
-        return output
-
-# Define the Feedforward Neural Network class
-class FFNN(nn.Module):
-    def __init__(self, input_size, hidden_size1, hidden_size2, output_size):
-        super(FFNN, self).__init__()
-        self.fc1 = DenseNTK(input_size, hidden_size1, activation=nn.ReLU())
-        self.fc2 = DenseNTK(hidden_size1, hidden_size2, activation=nn.ReLU())
-        self.fc3 = DenseNTK(hidden_size2, output_size)
+torch.manual_seed(12345)
+# Define a general feedforward neural network function with L hidden layers
+class FeedForwardNN(nn.Module):
+    def __init__(self, input_dim, hidden_dims, output_dim):
+        super(FeedForwardNN, self).__init__()
+        layers = []
+        layer_input_dim = input_dim
+        for hidden_dim in hidden_dims:
+            layer = nn.Linear(layer_input_dim, hidden_dim)
+            # Normalize weights by dividing by sqrt of input dimension size
+            nn.init.normal_(layer.weight, mean=0, std=1.0 / torch.sqrt(torch.tensor(layer_input_dim, dtype=torch.float32)))
+            layers.append(layer)
+            layers.append(nn.ReLU())
+            layer_input_dim = hidden_dim
+        final_layer = nn.Linear(layer_input_dim, output_dim)
+        nn.init.normal_(final_layer.weight, mean=0, std=1.0 / torch.sqrt(torch.tensor(layer_input_dim, dtype=torch.float32)))
+        layers.append(final_layer)
+        self.network = nn.Sequential(*layers)
 
     def forward(self, x):
-        x = self.fc1(x)
-        x = self.fc2(x)
-        x = self.fc3(x)
-        return x
+        return self.network(x)
 
-# Define model parameters
-input_size = X.shape[1]
-hidden_size1 = 64
-hidden_size2 = 32
-output_size = 1  # Assuming binary classification
+# Generate noisy Gaussian wave packet data
+def noisy_gaussian_wave_function(x, k=10, sigma=0.3, A=1, alpha=0.1):
+    epsilon = torch.normal(mean=0.0, std=1.0, size=x.shape)  # Generate noise (epsilon) from N(0,1)
+    return A * torch.exp(-(x**2) / (2 * sigma**2)) * torch.cos(k * x + epsilon * alpha)
 
-# Instantiate the model, define loss function and optimizer
-model = FFNN(input_size, hidden_size1, hidden_size2, output_size)
-criterion = nn.MSELoss()  # For binary classification
-optimizer = optim.SGD(model.parameters(), lr=0.001)
-
-
-print(model(X))
-# Training loop
-epochs = 100
-for epoch in range(epochs):
-    # Forward pass
-    outputs = model(X)
-    loss = criterion(outputs.squeeze(), T.float())
+# Neural Tangent Kernel computation using Torch
+def ntk_kernel(model, x1, x2):
+    # Compute the Jacobians
+    x1 = x1.unsqueeze(0)  # Add batch dimension
+    x2 = x2.unsqueeze(0)  # Add batch dimension
     
-    # Backward pass and optimization
-    optimizer.zero_grad()
-    loss.backward()
-    optimizer.step()
+    y1 = model(x1)
+    y2 = model(x2)
+
+    jacobian1 = autograd.functional.jacobian(lambda inp: model(inp).squeeze(), x1, create_graph=True)
+    jacobian2 = autograd.functional.jacobian(lambda inp: model(inp).squeeze(), x2, create_graph=True)
+
+    # Flatten the Jacobians
+    jacobian1_flat = torch.cat([j.view(-1) for j in jacobian1], dim=0)
+    jacobian2_flat = torch.cat([j.view(-1) for j in jacobian2], dim=0)
+
+    # Compute the NTK
+    kernel_value = torch.dot(jacobian1_flat, jacobian2_flat)
+    return kernel_value
+
+# Compute NTK for multiple data points
+def ntk_kernel_matrix(model, X):
+    n = X.shape[0]
+    jacobians = []
+    for i in tqdm(range(n), desc="Calculating Jacobians"):
+        x = X[i].unsqueeze(0)
+        jacobian = autograd.functional.jacobian(lambda inp: model(inp).squeeze(), x, create_graph=True)
+        jacobian_flat = torch.cat([j.view(-1) for j in jacobian], dim=0)
+        jacobians.append(jacobian_flat)
+    jacobians = torch.stack(jacobians)
+
+    # Compute the NTK kernel matrix using torch.matmul for efficiency
+    kernel_matrix = torch.matmul(jacobians, jacobians.T)
+    return kernel_matrix
+
+# Example usage with data generation and model training
+def train_model(x, targets, model, learning_rate, num_epochs, opt, problem_type):
+    if problem_type == "Regression":
+        criterion = nn.MSELoss()
+    if opt == "VanillaGD":
+        optimizer = optim.SGD(model.parameters(), lr=learning_rate)
     
-    # Print loss for every 10 epochs
-    if (epoch+1) % 10 == 0:
-        print(f'Epoch [{epoch+1}/{epochs}], Loss: {loss.item():.4f}')
+    L = []
+    for epoch in tqdm(range(num_epochs), desc="Training Model"):
+        model.train()
+        optimizer.zero_grad()
+        y = model(x)  # Entire dataset
+        loss = criterion(y, targets)
+        loss.backward()
+        optimizer.step()
+        L.append(loss.item())
+        if (epoch + 1) % 100 == 0:
+            print(f"Epoch [{epoch + 1}/{num_epochs}], Loss: {loss.item():.16f}")
+    return L, model(x)
 
-print("Training complete!")
+if __name__ == "__main__":
+    # Generate data using noisy Gaussian wave function
+    x_vals = torch.linspace(-1, 1, 1000).view(-1, 1)  # Ensure x_vals is 2D
+    psi_vals = noisy_gaussian_wave_function(x_vals).view(-1, 1)  # Ensure psi_vals is 2D
 
-plt.plot(model(X).detach().numpy())
-plt.show()
+    # Define input and network dimensions
+    input_dim = x_vals.shape[1]
+    hidden_dims = [256,64]  # Two hidden layers with 256 neurons each
+    output_dim = psi_vals.shape[1]
+
+    # Initialize model
+    model = FeedForwardNN(input_dim, hidden_dims, output_dim)
+
+    # Compute the NTK kernel matrix
+    kernel_matrix = ntk_kernel_matrix(model, x_vals)
+    print("NTK Kernel Matrix:\n", kernel_matrix)
+
+    # Compute the eigenvalues of the NTK kernel matrix
+    eigenvalues = torch.linalg.eigvals(kernel_matrix).real.to(dtype=torch.float32)
+    eigenvalues = torch.abs(eigenvalues)
+    eigenvalues = torch.sort(eigenvalues)[0]
+    print("Eigenvalues of NTK Kernel Matrix:\n", eigenvalues)
+
+    # Train the model
+    learning_rate = 1/eigenvalues[-1]
+    num_epochs = 5000
+    L, y_hat = train_model(x_vals, psi_vals, model, learning_rate, num_epochs, opt='VanillaGD', problem_type='Regression')
+
+    # Plot loss
+    plt.figure(figsize=(10, 6))
+    plt.plot(L, '.', markersize=2)
+    plt.title("Loss", fontsize=16)
+    plt.xlabel(r"Epoch ($\tau$)", fontsize=16)
+    plt.ylabel(r"$\mathcal{L}$", fontsize=16)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.yscale('log')
+    plt.show()
+
+    # Plot fit
+    plt.figure(figsize=(10, 6))
+    plt.plot(x_vals.numpy(), psi_vals.numpy(), '.', markersize=3, label="Data")
+    plt.plot(x_vals.numpy(), y_hat.detach().numpy(),'.', markersize=3, label="Fit")
+    plt.legend()
+    plt.title(f"Fit vs Real (fixed learning rate: {learning_rate})", fontsize=16)
+    plt.xlabel("x", fontsize=16)
+    plt.ylabel(fr"$y(x)$", fontsize=16)
+    plt.xticks(fontsize=14)
+    plt.yticks(fontsize=14)
+    plt.grid(True)
+    plt.legend(fontsize=12, frameon=True, loc='upper right')
+    plt.show()
