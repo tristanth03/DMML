@@ -164,7 +164,7 @@ def plot_fit(x,y_hat,t):
     plt.plot(x,y_hat,linewidth=0.2,label="Fit")
     plt.legend()
     N = len(x_vals)
-    plt.title(f"Fit vs Real (fixed learning rate: 0.01)",fontsize=16)
+    plt.title(f"Fit vs Real (fixed learning rate: 0.0001)",fontsize=16)
     plt.xlabel("x",fontsize=16)
     plt.ylabel(fr"$y(x)$",fontsize=16)
     plt.xticks(fontsize=14)  # Adjust the font size for x-axis ticks
@@ -199,7 +199,7 @@ if __name__ == "__main__":
     eig = torch.sort(eig)[0]
 
 
-    eta = 0.01
+    eta = 0.001
 
     
     L,y_ = train_model(x_vals,psi_vals,model,eta,10000,opt='VanillaGD',problem_type='Regression')
@@ -222,13 +222,13 @@ if __name__ == "__main__":
 
     import json
 
-    with open('eigen_wave_lr_0.01.json','w') as file:
+    with open('eigen_wave_lr_0.0001.json','w') as file:
         json.dump(eigens,file)
 
-    with open('loss_wave_lr_0.01.json','w') as file:
+    with open('loss_wave_lr_0.0001.json','w') as file:
         json.dump(Lo,file)
 
-    with open('fit_wave_lr_0.01.json','w') as file:
+    with open('fit_wave_lr_0.0001.json','w') as file:
         json.dump(y_hat,file)
 
 
