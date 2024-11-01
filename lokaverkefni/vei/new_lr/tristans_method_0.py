@@ -1,6 +1,7 @@
 import torch
 import torch.nn as nn
 from tqdm import tqdm
+import numpy as np
 
 
 class FeedForwardNN(nn.Module):
@@ -107,7 +108,7 @@ class Train:
     
 
 class Trist_train:
-    def __init__(self, x, t, model, eigenvalues, opt=1, epochs=1000, progress_bar=True):
+    def __init__(self, x, t, model, eigenvalues, opt=1, epochs=1000, progress_bar=True, decay=False):
         self.x = x
         self.t = t
         self.model = model
@@ -115,16 +116,34 @@ class Trist_train:
         self.epochs = epochs
         self.eigenvalues = eigenvalues
         self.progress_bar = progress_bar
+        self.decay = decay  # True: apply linear decay in the last 20% of epochs
 
     def T_train_model(self):
         criterion = nn.MSELoss()
         losses = []
-        eta = 1 / self.eigenvalues[0]
         range_func = tqdm(range(self.epochs), desc="Training Model") if self.progress_bar else range(self.epochs)
 
+        lambda_max = self.eigenvalues[0]
+        initial_eta = 1 / lambda_max
+
+        decay_start_epoch = int(0.8 * self.epochs)  # Decay starts after 80% of epochs
+        decay_duration = self.epochs - decay_start_epoch  # Last 20% of epochs
+
         for epoch in range_func:
+            if not self.decay:
+                # No decay
+                eta = initial_eta
+            else:
+                if epoch < decay_start_epoch:
+                    # First 80% of epochs, no decay
+                    eta = initial_eta
+                else:
+                    # Last 20% of epochs, apply linear decay
+                    decay_fraction = (epoch - decay_start_epoch) / decay_duration
+                    eta = initial_eta * (1 - decay_fraction)
+                    eta = max(eta, 1e-16)  # Ensure eta doesn't become negative
+
             optimizer = torch.optim.SGD(self.model.parameters(), lr=eta)
-            eta = eta * (self.eigenvalues[epoch % len(self.eigenvalues)] / self.eigenvalues[0])
             self.model.train()
             optimizer.zero_grad()
             y_pred = self.model(self.x)
@@ -132,10 +151,16 @@ class Trist_train:
             loss.backward()
             optimizer.step()
             losses.append(loss.item())
-            if (epoch + 1) % 100 == 0:
-                print(f"Epoch [{epoch + 1}/{self.epochs}], Loss: {loss.item():.16f}")
+
+            if (epoch + 1) % 100 == 0 or epoch == self.epochs - 1:
+                print(f"Epoch [{epoch + 1}/{self.epochs}], Loss: {loss.item():.16f}, Learning Rate (eta): {eta:.16f}")
 
         return torch.tensor(losses), self.model(self.x)
+
+
+
+
+
 
 
     
