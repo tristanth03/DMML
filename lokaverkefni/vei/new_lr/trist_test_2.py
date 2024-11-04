@@ -65,10 +65,10 @@ def run_test(num_runs, Eigenvalues=True, Loss=True, NTK_train=True, fixed_lr=0.0
         results.pop('eigenvalues', None)
     
     # Save results to JSON file
-    with open('NTK_gaussian_100seeds.json', 'w') as json_file:
+    with open('0.0001_100seeds.json', 'w') as json_file:
         json.dump(results, json_file, indent=4)
     
     print("Results saved to NTK_gaussian_100seeds.json")
 
 if __name__ == "__main__":
-    run_test(100, Eigenvalues=True, Loss=True, NTK_train=True, fixed_lr=0.001)
+    run_test(100, Eigenvalues=False, Loss=True, NTK_train=False, fixed_lr=0.0001)
