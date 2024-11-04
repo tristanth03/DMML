@@ -107,6 +107,10 @@ class Train:
         return torch.tensor(losses), self.model(self.x)
     
 
+import torch
+import torch.nn as nn
+from tqdm import tqdm
+
 class Trist_train:
     def __init__(self, x, t, model, eigenvalues, opt=1, epochs=1000, progress_bar=True, decay=False):
         self.x = x
@@ -116,7 +120,7 @@ class Trist_train:
         self.epochs = epochs
         self.eigenvalues = eigenvalues
         self.progress_bar = progress_bar
-        self.decay = decay  # True: apply linear decay in the last 20% of epochs
+        self.decay = decay  # True: apply custom decay formula
 
     def T_train_model(self):
         criterion = nn.MSELoss()
@@ -124,24 +128,27 @@ class Trist_train:
         range_func = tqdm(range(self.epochs), desc="Training Model") if self.progress_bar else range(self.epochs)
 
         lambda_max = self.eigenvalues[0]
-        initial_eta = 1 / lambda_max
-
-        decay_start_epoch = int(0.8 * self.epochs)  # Decay starts after 80% of epochs
-        decay_duration = self.epochs - decay_start_epoch  # Last 20% of epochs
-
+        k = 1
         for epoch in range_func:
             if not self.decay:
-                # No decay
-                eta = initial_eta
+                # No decay, use constant initial eta
+                eta = 1 / lambda_max
             else:
-                if epoch < decay_start_epoch:
-                    # First 80% of epochs, no decay
-                    eta = initial_eta
-                else:
-                    # Last 20% of epochs, apply linear decay
-                    decay_fraction = (epoch - decay_start_epoch) / decay_duration
-                    eta = initial_eta * (1 - decay_fraction)
-                    eta = max(eta, 1e-16)  # Ensure eta doesn't become negative
+                # Apply custom decay formula
+                if epoch == 0:
+                    eta = 10/lambda_max
+                if eta >= 1/lambda_max:
+                    # eta = (10 / lambda_max) * (1 - epoch / self.epochs) + (epoch / self.epochs) * (1 / (10 * lambda_max))
+                    eta = (10/lambda_max)-(1*epoch/self.epochs)*(10/lambda_max-1/(10*lambda_max))
+                    s = epoch
+           
+                elif eta < 1/lambda_max:
+                    eta = (1/lambda_max)-(0.1*(epoch-s)/(self.epochs-s))*(1/lambda_max-1/(10*lambda_max))
+                    if k==1:
+                        print(f'\n Tristan \n')
+                    k +=1
+                    
+           
 
             optimizer = torch.optim.SGD(self.model.parameters(), lr=eta)
             self.model.train()
@@ -156,6 +163,7 @@ class Trist_train:
                 print(f"Epoch [{epoch + 1}/{self.epochs}], Loss: {loss.item():.16f}, Learning Rate (eta): {eta:.16f}")
 
         return torch.tensor(losses), self.model(self.x)
+
 
 
 
