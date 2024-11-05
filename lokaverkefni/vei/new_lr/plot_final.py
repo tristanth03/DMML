@@ -25,11 +25,11 @@ def load_data(json_files):
         yield eigenvalues, losses
 
 # Specify the list of JSON files
-json_files = ['0.0001_100seeds.json', '0.1_100seeds.json', 'NTK_gaussian_100seeds.json', 'NTK_decay_100seeds.json']  # Replace with your list of JSON files
-
+#json_files = [ 'cali_eigens_20p.json']  # Replace with your list of JSON files
+json_files = ['0.0001_100seeds.json','0.01_100seeds.json', 'NTK_gaussian_100seeds.json', 'NTK_decay_100seeds.json']
 # Define a list of colors for different files
-colors = ['blue', 'green', 'orange', 'purple']
-
+#colors = ['black']
+colors = ['blue', 'green', 'orange', 'black']
 # Plot for each file individually
 all_median_losses = []
 for file_index, (eigenvalues, losses) in enumerate(load_data(json_files)):

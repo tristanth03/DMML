@@ -4,8 +4,9 @@ from tristans_method_0 import FeedForwardNN, NTK, Train, Trist_train
 import numpy as np
 import torch.nn as nn
 from tqdm import tqdm
+import json
 
-
+torch.manual_seed(1234)
 # Generate data using noisy Gaussian wave function
 def noisy_gaussian_wave_function(x, k=10, sigma=0.3, A=1, alpha=0.1):
     epsilon = torch.normal(mean=0.0, std=1.0, size=x.shape)  # Generate noise (epsilon) from N(0,1)
@@ -35,6 +36,18 @@ if __name__ == "__main__":
     eigen = eigenvalues.detach().numpy()
 
     eigen = eigen[::-1]
+
+    trainer = Trist_train(x_vals,psi_vals,model,eigen,opt=1,epochs=100000,decay=True)
+    losses, predictions = trainer.T_train_model()
     
+    data_to_save = {
+        "losses": losses,
+        "predictions": predictions.tolist()  # Convert tensor to list for JSON compatibility
+    }
+
+    with open("mega_train_gaussian.json", "w") as f:
+        json.dump(data_to_save, f)
+
+    print("Predictions and losses saved to training_results.json")
     
     

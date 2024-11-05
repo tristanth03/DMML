@@ -23,8 +23,8 @@ def plot_etas(json_file):
     
     # Add labels and title with current font size
     plt.xlabel('Epoch', fontsize='medium')
-    plt.ylabel('Eta Value', fontsize='medium')
-    plt.title(f'Eta Values Over Epochs for {len(etas)} Different Random Seeds', fontsize='medium')
+    plt.ylabel(fr'$\eta_{\tau}$', fontsize=18)
+    plt.title(fr'$\eta$ Values Over Epochs', fontsize=20)
     plt.grid(True)
     plt.show()
 

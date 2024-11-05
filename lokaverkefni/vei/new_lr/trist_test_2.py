@@ -71,4 +71,4 @@ def run_test(num_runs, Eigenvalues=True, Loss=True, NTK_train=True, fixed_lr=0.0
     print("Results saved to NTK_gaussian_100seeds.json")
 
 if __name__ == "__main__":
-    run_test(100, Eigenvalues=False, Loss=True, NTK_train=False, fixed_lr=0.01)
+    run_test(100, Eigenvalues=False, Loss=True, NTK_train=True, fixed_lr=0.01)
