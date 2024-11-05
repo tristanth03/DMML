@@ -44,7 +44,7 @@ def run_test(num_runs, Eigenvalues=True, Loss=True, NTK_train=True, fixed_lr=0.0
                     eigen = eigen[::-1]
                     results['eigenvalues'].append(eigen.tolist())
                 
-                trainer = Trist_train(x_vals, psi_vals, model, eigen, opt=1, epochs=10000, decay=False, progress_bar=False)
+                trainer = Trist_train(x_vals, psi_vals, model, eigen, opt=1, epochs=10000, decay=True, progress_bar=False)
                 losses, predictions = trainer.T_train_model()
                 if Loss:
                     results['losses'].append([loss.item() for loss in losses])
@@ -65,10 +65,10 @@ def run_test(num_runs, Eigenvalues=True, Loss=True, NTK_train=True, fixed_lr=0.0
         results.pop('eigenvalues', None)
     
     # Save results to JSON file
-    with open('0.1_100seeds.json', 'w') as json_file:
+    with open('NTK_decay_100seeds.json', 'w') as json_file:
         json.dump(results, json_file, indent=4)
     
     print("Results saved to NTK_gaussian_100seeds.json")
 
 if __name__ == "__main__":
-    run_test(100, Eigenvalues=False, Loss=True, NTK_train=False, fixed_lr=0.1)
+    run_test(100, Eigenvalues=True, Loss=True, NTK_train=True, fixed_lr=0.1)

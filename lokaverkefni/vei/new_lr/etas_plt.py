@@ -11,8 +11,8 @@ def plot_etas(json_file):
     
     # Plot eta values for each run in gray with transparency
     plt.figure(figsize=(10, 6))
-    for eta_values in etas:
-        plt.plot(eta_values, color='grey', alpha=0.5)
+    # for eta_values in etas:
+    #     plt.plot(eta_values, color='grey', alpha=0.5)
     
     # Plot the median eta values across all runs in blue
     median_etas = np.median(etas, axis=0)
