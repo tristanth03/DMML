@@ -58,7 +58,7 @@ def train_model(seed=42, epochs=1000, Eigenvalues=True, NTK_train=True):
         eigen = None
     
     # Train the model using Trist_train
-    trainer = Trist_train(X_train_tensor, y_train_tensor, model, eigen, opt=1, epochs=epochs, progress_bar=True, decay=True)
+    trainer = Trist_train(X_train_tensor, y_train_tensor, model, eigen, opt=1, epochs=epochs, progress_bar=True, decay=False)
     losses, predictions = trainer.T_train_model()
     
     # Unscale predictions for reporting purposes
@@ -80,7 +80,8 @@ def train_model(seed=42, epochs=1000, Eigenvalues=True, NTK_train=True):
         "train_losses": [float(loss) for loss in losses],
         "train_predictions": train_predictions_unscaled.flatten().tolist(),
         "test_predictions": test_predictions_unscaled.flatten().tolist(),
-        "test_loss": float(test_loss)
+        "test_loss": float(test_loss),
+        "eigenvalues": eigen.tolist() if eigen is not None else None
     }
     
     return data_to_save
@@ -91,7 +92,7 @@ if __name__ == "__main__":
     results = train_model(seed=seed, epochs=epochs, Eigenvalues=True, NTK_train=True)
     
     # Save results to JSON file
-    with open('cali_mega_train.json', 'w') as json_file:
+    with open('cali_mega_train_NoDecay.json', 'w') as json_file:
         json.dump(results, json_file, indent=4)
     
-    print("Results saved to california_housing_training_results.json")
+    print("Results saved to cali_mega_train_NoDecay.json")

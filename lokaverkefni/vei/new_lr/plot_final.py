@@ -25,11 +25,11 @@ def load_data(json_files):
         yield eigenvalues, losses
 
 # Specify the list of JSON files
-json_files = ['0.0001_100seeds.json','0.01_100seeds.json', 'NTK_gaussian_100seeds.json', 'NTK_decay_100seeds.json']
+json_files = ['cali_eigens_20p.json']
 # Define a list of colors for different files
-colors = ['blue', 'green', 'orange', 'red']
+colors = ['blue']
 # Define labels for each file
-labels = [r'$\eta=0.0001$', r'$\eta=0.01$', r'$\eta=1/\lambda_{\text{max}}$', 'TS-decay']
+# labels = [r'$\eta=0.0001$', r'$\eta=0.01$', r'$\eta=1/\lambda_{\text{max}}$', 'TS-decay']
 
 # List to store median losses for each file
 median_losses_per_file = []
@@ -97,3 +97,6 @@ plt.grid(True)
 plt.legend(fontsize=18)
 
 plt.show()
+for file_index, median_loss in enumerate(median_losses_per_file):
+    final_loss = median_loss[-1]
+    print(f'Final loss for {labels[file_index]}: {final_loss:.6f}')
