@@ -15,7 +15,7 @@ def load_data(json_files):
         losses = []
 
         if 'eigenvalues' in data:
-            eigenvalues = [np.array(eigen) for eigen in data['eigenvalues']]
+            eigenvalues = [np.array(eigen[::-1]) for eigen in data['eigenvalues']]
             all_eigenvalues.append(eigenvalues)
         
         if 'losses' in data:
@@ -25,13 +25,16 @@ def load_data(json_files):
         yield eigenvalues, losses
 
 # Specify the list of JSON files
-#json_files = [ 'cali_eigens_20p.json']  # Replace with your list of JSON files
 json_files = ['0.0001_100seeds.json','0.01_100seeds.json', 'NTK_gaussian_100seeds.json', 'NTK_decay_100seeds.json']
 # Define a list of colors for different files
-#colors = ['black']
-colors = ['blue', 'green', 'orange', 'black']
+colors = ['blue', 'green', 'orange', 'red']
+# Define labels for each file
+labels = [r'$\eta=0.0001$', r'$\eta=0.01$', r'$\eta=1/\lambda_{\text{max}}$', 'TS-decay']
+
+# List to store median losses for each file
+median_losses_per_file = []
+
 # Plot for each file individually
-all_median_losses = []
 for file_index, (eigenvalues, losses) in enumerate(load_data(json_files)):
     # Plotting eigenvalues for each file
     if eigenvalues:
@@ -41,17 +44,18 @@ for file_index, (eigenvalues, losses) in enumerate(load_data(json_files)):
         
         # Calculate the median across seeds at each epoch
         median_eigenvalues = np.median(np.array(eigenvalues), axis=0)
-        plt.plot(range(len(median_eigenvalues)), median_eigenvalues, color=colors[file_index], linewidth=2, label='Median Eigenvalues')
+        plt.plot(range(len(median_eigenvalues)), median_eigenvalues, color='black', linewidth=2, label='Median Eigenvalues')
 
         # Set logarithmic scale for y-axis
         plt.yscale('log')
 
         # Add labels and title
-        plt.xlabel('i', fontsize='medium')
-        plt.ylabel(r'$\lambda$', fontsize='medium')
-        plt.title(f'Eigenvalues for File {json_files[file_index]}', fontsize='medium')
+        plt.xlabel('i', fontsize=18)
+        plt.ylabel(r'$\lambda$', fontsize=18)
+        plt.title(f'Eigenvalues', fontsize=20)
         plt.grid(True)
-        plt.legend()
+        plt.legend(fontsize=18)
+        
         plt.show()
 
     # Plotting losses for each file
@@ -62,37 +66,34 @@ for file_index, (eigenvalues, losses) in enumerate(load_data(json_files)):
 
         # Calculate the median losses across filtered seeds at each epoch
         median_loss = np.median(np.array(losses), axis=0)
-        all_median_losses.append((median_loss, json_files[file_index]))
+        median_losses_per_file.append(median_loss)
         plt.plot(range(len(median_loss)), median_loss, color=colors[file_index], linewidth=2, label='Median Loss')
 
         # Set logarithmic scale for y-axis
         plt.yscale('log')
 
         # Add labels and title
-        plt.xlabel(r'Epochs $(\tau)$', fontsize='medium')
-        plt.ylabel('Loss', fontsize='medium')
-        plt.title(f'Training Loss over Epochs for File {json_files[file_index]}', fontsize='medium')
+        plt.xlabel(r'Epochs $(\tau)$', fontsize=18)
+        plt.ylabel('Loss', fontsize=18)
+        plt.title(f'Training Loss over Epochs for {labels[file_index]}', fontsize=20)
         plt.grid(True)
-        plt.legend()
+        plt.legend(fontsize=18)
+ 
         plt.show()
 
-# Plotting median losses across all files
-if all_median_losses:
-    plt.figure(figsize=(10, 6))
-    for index, (median_loss, filename) in enumerate(all_median_losses):
-        plt.plot(range(len(median_loss)), median_loss, color=colors[index], alpha=0.7, linewidth=2, label=f'Median Loss - {filename}')
+# Plotting the median of each loss for each file
+plt.figure(figsize=(10, 6))
+for file_index, median_loss in enumerate(median_losses_per_file):
+    plt.plot(range(len(median_loss)), median_loss, color=colors[file_index], linewidth=2, label=labels[file_index])
 
-    # Calculate the median of the medians across all files
-    overall_median_loss = np.median(np.array([median_loss for median_loss, _ in all_median_losses]), axis=0)
-    plt.plot(range(len(overall_median_loss)), overall_median_loss, color='red', linewidth=2, label='Overall Median Loss')
+# Set logarithmic scale for y-axis
+plt.yscale('log')
 
-    # Set logarithmic scale for y-axis
-    plt.yscale('log')
+# Add labels and title
+plt.xlabel(r'Epochs $(\tau)$', fontsize=18)
+plt.ylabel('Loss', fontsize=18)
+plt.title('Median Training Loss over Epochs', fontsize=20)
+plt.grid(True)
+plt.legend(fontsize=18)
 
-    # Add labels and title
-    plt.xlabel(r'Epochs $(\tau)$', fontsize='medium')
-    plt.ylabel('Loss', fontsize='medium')
-    plt.title(f'Median Training Loss over Epochs for All Files', fontsize='medium')
-    plt.grid(True)
-    plt.legend()
-    plt.show()
+plt.show()
