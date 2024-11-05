@@ -35,7 +35,6 @@ if __name__ == "__main__":
     eigen = eigenvalues.detach().numpy()
 
     eigen = eigen[::-1]
-    trainer = Trist_train(x_vals,psi_vals,model,eigen,opt=1,epochs=10000,decay=False)
-    losses, predictions = trainer.T_train_model()
-    print(1/(10*eigen[0]))
+    
+    
     
