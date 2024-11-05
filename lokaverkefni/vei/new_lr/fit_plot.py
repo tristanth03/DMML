@@ -1,6 +1,7 @@
 import json
 import numpy as np
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 from sklearn.model_selection import train_test_split
 
 # Set seed for reproducibility
@@ -26,16 +27,22 @@ psi_vals = noisy_gaussian_wave_function(x_vals).reshape(-1, 1)
 # Split data into training and testing sets (80% for training, 20% for testing)
 X_train, X_test, y_train, y_test = train_test_split(x_vals, psi_vals, test_size=0.2, random_state=1234)
 
+# Define custom markers for legend
+train_actual_marker = mlines.Line2D([], [], color='blue', marker='.', linestyle='None', markersize=6, label='Train Actuals')
+test_actual_marker = mlines.Line2D([], [], color='orange', marker='.', linestyle='None', markersize=6, label='Test Actuals')
+train_prediction_marker = mlines.Line2D([], [], color='green', marker='.', linestyle='None', markersize=4, label='Train Predictions')
+test_prediction_marker = mlines.Line2D([], [], color='red', marker='.', linestyle='None', markersize=4, label='Test Predictions')
+
 # Plot the fit
 plt.figure(figsize=(10, 6))
-plt.plot(X_train, y_train, '.', label="Training Data", markersize=2)
-plt.plot(X_test, y_test, '.', label="Testing Data", markersize=2)
-plt.plot(X_train, train_predictions, '.', markersize=3, label="Model Predictions (Train)")
-plt.plot(X_test, test_predictions, '.', markersize=3, label="Model Predictions (Test)")
-plt.xlabel("x")
-plt.ylabel("y")
-plt.legend(loc='upper left')
-plt.title("Model Fit vs True Data (Train and Test)")
+plt.plot(X_train, y_train, '.', color='blue', markersize=2, label="Train Actuals")
+plt.plot(X_test, y_test, '.', color='orange', markersize=2, label="Test Actuals")
+plt.plot(X_train, train_predictions, '.', color='green', markersize=3, label="Train Predictions")
+plt.plot(X_test, test_predictions, '.', color='red', markersize=3, label="Test Predictions")
+plt.xlabel("x", fontsize=16)
+plt.ylabel("y", fontsize=16)
+plt.legend(handles=[train_actual_marker, test_actual_marker, train_prediction_marker, test_prediction_marker], loc='upper left', fontsize=12)
+plt.title("Model Fit vs True Data (Train and Test)", fontsize=20)
 plt.grid(True)
 
 # Add parameters of the Gaussian wave packet in a text box
@@ -44,15 +51,15 @@ param_text = (r" $A = 1$"
               r" $k = 10$"
               r" $\alpha = 0.1$")
 plt.text(0.95, 0.95, param_text, transform=plt.gca().transAxes,
-         fontsize=10, verticalalignment='top', horizontalalignment='right',
+         fontsize=12, verticalalignment='top', horizontalalignment='right',
          bbox=dict(boxstyle="round,pad=0.4", edgecolor="black", facecolor="white"))
 
 # Add number of datapoints in a text box at the bottom
 plt.text(0.05, 0.05, f"N = {len(x_vals)}", transform=plt.gca().transAxes,
-         fontsize=10, verticalalignment='bottom', horizontalalignment='left',
+         fontsize=12, verticalalignment='bottom', horizontalalignment='left',
          bbox=dict(boxstyle="round,pad=0.4", edgecolor="black", facecolor="white"))
 
 plt.show()
 
-print(data["test_loss"])
-print(data["train_losses"][-1])
+print("Test Loss:", data["test_loss"])
+print("Final Training Loss:", data["train_losses"][-1])

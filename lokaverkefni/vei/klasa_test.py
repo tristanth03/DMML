@@ -15,7 +15,7 @@ if __name__ == "__main__":
     # Define network parameters
     input_dim = x_vals.shape[1]
     output_dim = psi_vals.shape[1]
-    hidden_layers = [128, 64]
+    hidden_layers = [256, 64, 8]
 
     # Initialize the model
     model = FeedForwardNN(x_vals, psi_vals, hidden_layers)
@@ -53,7 +53,7 @@ if __name__ == "__main__":
     # Plot the fit
     plt.figure(figsize=(10, 6))
     plt.plot(x_vals.numpy(), psi_vals.numpy(), '.', label="True Data", markersize=3)
-    plt.plot(x_vals.numpy(), predictions.detach().numpy(), '-', label="Model Predictions", linewidth=1)
+    plt.plot(x_vals.numpy(), predictions.detach().numpy(), '.', label="Model Predictions", linewidth=1)
     plt.xlabel("x")
     plt.ylabel("y")
     plt.legend(loc='upper left')

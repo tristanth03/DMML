@@ -215,7 +215,7 @@ if __name__ == "__main__":
 
    
 
-    M = [100,100]  # Two hidden layers with 10 neurons each
+    M = [256,64,8]  # Two hidden layers with 10 neurons each
     model = ffnn_model(D, K, M)
     print(model(x_vals))
 
@@ -234,7 +234,7 @@ if __name__ == "__main__":
    
     # print(X_train)
     # print(y_train)
-    L,y_ = train_model(x_vals,psi_vals,model,eta,500,opt='VanillaGD',problem_type='Regression')
+    L,y_ = train_model(x_vals,psi_vals,model,eta,10000,opt='VanillaGD',problem_type='Regression')
     print(model(x_vals))
     
     y_hat = [t.item() for t in y_]
@@ -245,7 +245,7 @@ if __name__ == "__main__":
         
 
 
-    plot_eig(eig)
+
 
     # import json
 

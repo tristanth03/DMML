@@ -1,10 +1,12 @@
 import torch
 import matplotlib.pyplot as plt
+import matplotlib.lines as mlines
 from klasar import FeedForwardNN, NTK, Train
 from sklearn.model_selection import train_test_split
 
-
+# Set random seed for reproducibility
 torch.manual_seed(1234)
+
 # Generate data using noisy Gaussian wave function
 def noisy_gaussian_wave_function(x, k=10, sigma=0.3, A=1, alpha=0.1):
     epsilon = torch.normal(mean=0.0, std=1.0, size=x.shape)  # Generate noise (epsilon) from N(0,1)
@@ -21,15 +23,16 @@ if __name__ == "__main__":
     # Define network parameters
     input_dim = x_vals.shape[1]
     output_dim = psi_vals.shape[1]
-    hidden_layers = [128, 64]
+    hidden_layers = [256, 64, 8]
 
     # Initialize the model
     model = FeedForwardNN(x_train, psi_train, hidden_layers)
 
+    # Compute NTK and set learning rate
     ntk = NTK(x_train, x_train, model)
     kernel_matrix, eigenvalues = ntk.compute_ntk()
     eigen = eigenvalues.detach().numpy()
-    eta = 0.0001
+    eta = 0.01
     trainer = Train(x_train, psi_train, model, opt=1, epochs=10000, learning_rate=eta)
     losses, predictions_train = trainer.train_model()
 
@@ -58,16 +61,23 @@ if __name__ == "__main__":
     plt.grid(True)
     plt.show()
 
+    # Define custom markers for the legend
+    train_actual_marker = mlines.Line2D([], [], color='blue', marker='.', linestyle='None', markersize=6, label='Train Actuals')
+    test_actual_marker = mlines.Line2D([], [], color='orange', marker='.', linestyle='None', markersize=6, label='Test Actuals')
+    train_prediction_marker = mlines.Line2D([], [], color='green', marker='.', linestyle='None', markersize=4, label='Train Predictions')
+    test_prediction_marker = mlines.Line2D([], [], color='red', marker='.', linestyle='None', markersize=4, label='Test Predictions')
+
     # Plot the fit
     plt.figure(figsize=(10, 6))
-    plt.plot(x_train.numpy(), psi_train.numpy(), '.', label="Training Data", markersize=2)
-    plt.plot(x_test.numpy(), psi_test.numpy(), '.', label="Testing Data", markersize=2)
-    plt.plot(x_train.numpy(), predictions_train.detach().numpy(), '.', markersize=3, label="Model Predictions (Train)",)
-    plt.plot(x_test.numpy(), predictions_test.detach().numpy(), '.',markersize=3, label="Model Predictions (Test)")
-    plt.xlabel("x")
-    plt.ylabel("y")
-    plt.legend(loc='upper left')
-    plt.title("Model Fit vs True Data (Train and Test)")
+    plt.plot(x_train.numpy(), psi_train.numpy(), '.', color='blue', markersize=2, label="Train Actuals")
+    plt.plot(x_test.numpy(), psi_test.numpy(), '.', color='orange', markersize=2, label="Test Actuals")
+    plt.plot(x_train.numpy(), predictions_train.detach().numpy(), '.', color='green', markersize=3, label="Train Predictions")
+    plt.plot(x_test.numpy(), predictions_test.detach().numpy(), '.', color='red', markersize=3, label="Test Predictions")
+    plt.xlabel("x", fontsize=16)
+    plt.ylabel("y", fontsize=16)
+    plt.legend(handles=[train_actual_marker,  test_actual_marker, train_prediction_marker, test_prediction_marker],
+               loc='upper left', fontsize=12)
+    plt.title("Model Fit vs True Data (Train and Test)", fontsize=20)
     plt.grid(True)
 
     # Add parameters of the Gaussian wave packet in a text box
@@ -76,12 +86,12 @@ if __name__ == "__main__":
                   r" $k = 10$"
                   r" $\alpha = 0.1$")
     plt.text(0.95, 0.95, param_text, transform=plt.gca().transAxes,
-             fontsize=10, verticalalignment='top', horizontalalignment='right',
+             fontsize=12, verticalalignment='top', horizontalalignment='right',
              bbox=dict(boxstyle="round,pad=0.4", edgecolor="black", facecolor="white"))
 
     # Add number of datapoints in a text box at the bottom
     plt.text(0.05, 0.05, f"N = {len(x_vals)}", transform=plt.gca().transAxes,
-             fontsize=10, verticalalignment='bottom', horizontalalignment='left',
+             fontsize=12, verticalalignment='bottom', horizontalalignment='left',
              bbox=dict(boxstyle="round,pad=0.4", edgecolor="black", facecolor="white"))
 
     plt.show()
