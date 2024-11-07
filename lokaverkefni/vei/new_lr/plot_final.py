@@ -25,7 +25,7 @@ def load_data(json_files):
         yield eigenvalues, losses
 
 # Specify the list of JSON files
-json_files = ['cali_eigens_20p.json']
+json_files = ['cali_mega_train_NoDecay.json']
 # Define a list of colors for different files
 colors = ['blue']
 # Define labels for each file

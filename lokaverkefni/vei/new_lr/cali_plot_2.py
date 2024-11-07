@@ -83,7 +83,7 @@ def plot_actuals_and_predictions(data):
 
 if __name__ == "__main__":
     # Load the data from the saved JSON file
-    data = load_json_data('cali_mega_train.json')
+    data = load_json_data('cali_mega_train_NoDecay.json')
     
     # Plot the actuals and predictions
     plot_actuals_and_predictions(data)

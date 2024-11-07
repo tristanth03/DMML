@@ -58,11 +58,14 @@ def plot_actuals_and_predictions(data):
     axs[0].plot(range(len(sorted_train_actuals)), sorted_train_actuals, '.', markersize=2, color='green', label="Train Actuals")
     axs[0].plot(range(len(sorted_train_predictions)), sorted_train_predictions, '.', markersize=0.5, color='blue', label="Train Predictions")
     axs[0].set_ylabel('Price [$]', fontsize=16)
-    axs[0].set_title('Sorted Train/Test Actuals and Predictions',fontsize=20)
+    axs[0].set_title('Sorted Train/Test Actuals and Predictions', fontsize=20)
     axs[0].grid(True)
+    
+    # Set yticks and yticklabels
+    axs[0].set_yticks(axs[0].get_yticks())
     axs[0].set_yticklabels([f'{int(tick/1000)}k' for tick in axs[0].get_yticks()])
 
-    # Create custom legend markers with bigger size
+    # Custom legend
     train_actual_marker = mlines.Line2D([], [], color='green', marker='.', linestyle='None', markersize=6, label='Train Actuals')
     train_prediction_marker = mlines.Line2D([], [], color='blue', marker='.', linestyle='None', markersize=4, label='Train Predictions')
     axs[0].legend(handles=[train_actual_marker, train_prediction_marker], fontsize=16)
@@ -73,9 +76,12 @@ def plot_actuals_and_predictions(data):
     axs[1].set_xlabel('Sorted Data Points', fontsize=16)
     axs[1].set_ylabel('Price [$]', fontsize=16)
     axs[1].grid(True)
+    
+    # Set yticks and yticklabels
+    axs[1].set_yticks(axs[1].get_yticks())
     axs[1].set_yticklabels([f'{int(tick/1000)}k' for tick in axs[1].get_yticks()])
 
-    # Create custom legend markers with bigger size
+    # Custom legend
     test_actual_marker = mlines.Line2D([], [], color='orange', marker='.', linestyle='None', markersize=6, label='Test Actuals')
     test_prediction_marker = mlines.Line2D([], [], color='red', marker='.', linestyle='None', markersize=4, label='Test Predictions')
     axs[1].legend(handles=[test_actual_marker, test_prediction_marker], fontsize=16)
@@ -86,7 +92,7 @@ def plot_actuals_and_predictions(data):
 
 if __name__ == "__main__":
     # Load the data from the saved JSON file
-    data = load_json_data('cali_mega_train.json')
+    data = load_json_data('cali_mega_train_NoDecay.json')
     
     # Plot the actuals and predictions
     plot_actuals_and_predictions(data)
